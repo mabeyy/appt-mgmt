@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AdminNotification;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -40,6 +42,17 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
+            ],
+            'business' => [
+                'name' => Setting::get('business_name', config('app.name')),
+                'logo' => Setting::get('business_logo'),
+            ],
+            'notifications' => [
+                'unread' => $request->user() ? AdminNotification::unread()->count() : 0,
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

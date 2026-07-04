@@ -1,7 +1,16 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    Bell,
+    CalendarCheck2,
+    CalendarDays,
+    ChartColumnBig,
+    Contact,
+    LayoutGrid,
+    Settings2,
+    Sparkles,
+    UsersRound,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -14,27 +23,32 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as appointments } from '@/routes/appointments';
+import { edit as businessSettings } from '@/routes/business';
+import { index as calendar } from '@/routes/calendar';
+import { index as customers } from '@/routes/customers';
+import { index as notifications } from '@/routes/notifications';
+import { index as reports } from '@/routes/reports';
+import { index as services } from '@/routes/services';
+import { index as staff } from '@/routes/staff';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
+const overviewNav: NavItem[] = [
+    { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+    { title: 'Appointments', href: appointments(), icon: CalendarCheck2 },
+    { title: 'Calendar', href: calendar(), icon: CalendarDays },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+const managementNav: NavItem[] = [
+    { title: 'Services', href: services(), icon: Sparkles },
+    { title: 'Staff', href: staff(), icon: UsersRound },
+    { title: 'Customers', href: customers(), icon: Contact },
+];
+
+const insightsNav: NavItem[] = [
+    { title: 'Reports', href: reports(), icon: ChartColumnBig },
+    { title: 'Notifications', href: notifications(), icon: Bell },
+    { title: 'Settings', href: businessSettings(), icon: Settings2 },
 ];
 
 export function AppSidebar() {
@@ -54,11 +68,12 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={overviewNav} label="Overview" />
+                <NavMain items={managementNav} label="Management" />
+                <NavMain items={insightsNav} label="Insights" />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

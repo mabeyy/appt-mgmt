@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\BusinessSettingsController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -24,6 +25,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
+
+    Route::get('settings/business', [BusinessSettingsController::class, 'edit'])->name('business.edit');
+    Route::post('settings/business', [BusinessSettingsController::class, 'update'])->name('business.update');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

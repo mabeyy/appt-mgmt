@@ -296,3 +296,66 @@
     --radius-4xl:
         calc(var(--radius) * 2.6);
 }
+
+/* FullCalendar — theme-aware buttons + surfaces */
+.fc {
+    --fc-border-color: var(--color-border);
+    --fc-today-bg-color: color-mix(in oklch, var(--color-primary) 8%, transparent);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: var(--color-muted);
+    --fc-event-border-color: transparent;
+}
+
+.fc .fc-button-primary {
+    background-color: var(--color-secondary);
+    border-color: var(--color-border);
+    color: var(--color-secondary-foreground);
+    font-weight: 500;
+    text-transform: capitalize;
+    box-shadow: none;
+}
+
+.fc .fc-button-primary:hover {
+    background-color: var(--color-muted);
+    border-color: var(--color-border);
+    color: var(--color-foreground);
+}
+
+.fc .fc-button-primary:disabled {
+    background-color: var(--color-secondary);
+    border-color: var(--color-border);
+    color: var(--color-muted-foreground);
+    opacity: 0.6;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+}
+
+.fc .fc-button-primary:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-timegrid-axis-cushion,
+.fc .fc-timegrid-slot-label-cushion {
+    color: var(--color-muted-foreground);
+    text-decoration: none;
+}
+
+.fc-theme-standard .fc-scrollgrid,
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border-color: var(--color-border);
+}
