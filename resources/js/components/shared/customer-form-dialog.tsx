@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { store, update } from '@/routes/customers';
 import type { Customer } from '@/types';
 
@@ -114,14 +115,13 @@ export function CustomerFormDialog({
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="address">Address</Label>
-                            <textarea
+                            <Textarea
                                 id="address"
                                 value={form.data.address}
                                 onChange={(e) =>
                                     form.setData('address', e.target.value)
                                 }
                                 rows={2}
-                                className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                             />
                             <InputError message={form.errors.address} />
                         </div>

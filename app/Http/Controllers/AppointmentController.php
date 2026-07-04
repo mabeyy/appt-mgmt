@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ResolveCustomer;
 use App\Enums\AppointmentStatus;
 use App\Http\Requests\AppointmentRequest;
 use App\Models\AdminNotification;
@@ -65,10 +66,10 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function store(AppointmentRequest $request): RedirectResponse
+    public function store(AppointmentRequest $request, ResolveCustomer $resolveCustomer): RedirectResponse
     {
         $data = $request->validated();
-        $customer = $this->resolveCustomer($data);
+        $customer = $resolveCustomer->handle($data);
 
         $appointment = Appointment::create([
             'customer_id' => $customer->id,
@@ -81,12 +82,12 @@ class AppointmentController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        AdminNotification::create([
-            'type' => 'new_appointment',
-            'title' => 'New appointment booked',
-            'message' => "{$customer->full_name} — {$appointment->appointment_number}",
-            'data' => ['appointment_id' => $appointment->id],
-        ]);
+        AdminNotification::record(
+            'new_appointment',
+            'New appointment booked',
+            "{$customer->full_name} — {$appointment->appointment_number}",
+            ['appointment_id' => $appointment->id],
+        );
 
         return redirect()->route('appointments.index')->with('success', 'Appointment created successfully.');
     }
@@ -113,10 +114,10 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function update(AppointmentRequest $request, Appointment $appointment): RedirectResponse
+    public function update(AppointmentRequest $request, Appointment $appointment, ResolveCustomer $resolveCustomer): RedirectResponse
     {
         $data = $request->validated();
-        $customer = $this->resolveCustomer($data, $appointment);
+        $customer = $resolveCustomer->handle($data);
 
         $wasRescheduled = $appointment->appointment_date->format('Y-m-d') !== $data['appointment_date']
             || substr((string) $appointment->start_time, 0, 5) !== $data['start_time'];
@@ -135,9 +136,9 @@ class AppointmentController extends Controller
         ]);
 
         if ($wasCancelled) {
-            $this->notify('cancelled', 'Appointment cancelled', $appointment);
+            $this->notifyAppointment('cancelled', 'Appointment cancelled', $appointment);
         } elseif ($wasRescheduled) {
-            $this->notify('rescheduled', 'Appointment rescheduled', $appointment);
+            $this->notifyAppointment('rescheduled', 'Appointment rescheduled', $appointment);
         }
 
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully.');
@@ -175,38 +176,13 @@ class AppointmentController extends Controller
         return back()->with('success', count($validated['ids']).' appointment(s) updated.');
     }
 
-    /**
-     * Find an existing customer or create one from the supplied fields.
-     *
-     * @param  array<string, mixed>  $data
-     */
-    protected function resolveCustomer(array $data, ?Appointment $appointment = null): Customer
+    protected function notifyAppointment(string $type, string $title, Appointment $appointment): void
     {
-        if (! empty($data['customer_id'])) {
-            return Customer::findOrFail($data['customer_id']);
-        }
-
-        if (! empty($data['customer_email'])) {
-            return Customer::firstOrCreate(
-                ['email' => $data['customer_email']],
-                ['full_name' => $data['customer_name'], 'phone' => $data['customer_phone'] ?? null],
-            );
-        }
-
-        return Customer::create([
-            'full_name' => $data['customer_name'],
-            'email' => $data['customer_email'] ?? null,
-            'phone' => $data['customer_phone'] ?? null,
-        ]);
-    }
-
-    protected function notify(string $type, string $title, Appointment $appointment): void
-    {
-        AdminNotification::create([
-            'type' => $type,
-            'title' => $title,
-            'message' => "{$appointment->appointment_number} — {$appointment->customer->full_name}",
-            'data' => ['appointment_id' => $appointment->id],
-        ]);
+        AdminNotification::record(
+            $type,
+            $title,
+            "{$appointment->appointment_number} — {$appointment->customer->full_name}",
+            ['appointment_id' => $appointment->id],
+        );
     }
 }

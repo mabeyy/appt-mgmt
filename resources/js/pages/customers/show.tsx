@@ -9,11 +9,11 @@ import {
     Pencil,
     Phone,
 } from 'lucide-react';
-import { CustomerFormDialog } from '@/components/customer-form-dialog';
-import { EmptyState } from '@/components/empty-state';
-import { PageHeader } from '@/components/page-header';
-import { StatCard } from '@/components/stat-card';
-import { StatusBadge } from '@/components/status-badge';
+import { CustomerFormDialog } from '@/components/shared/customer-form-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PageHeader } from '@/components/shared/page-header';
+import { StatCard } from '@/components/shared/stat-card';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {

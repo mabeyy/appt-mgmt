@@ -18,6 +18,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { store, update } from '@/routes/appointments';
 import type {
     Appointment,
@@ -396,14 +397,13 @@ export function AppointmentForm({
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="notes">Notes</Label>
-                            <textarea
+                            <Textarea
                                 id="notes"
                                 value={form.data.notes}
                                 onChange={(e) =>
                                     form.setData('notes', e.target.value)
                                 }
                                 rows={5}
-                                className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                                 placeholder="Optional notes..."
                             />
                             <InputError message={form.errors.notes} />

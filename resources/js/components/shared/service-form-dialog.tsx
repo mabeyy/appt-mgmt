@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { store, update } from '@/routes/services';
 import type { Service } from '@/types';
 
@@ -100,14 +101,13 @@ export function ServiceFormDialog({
 
                         <div className="grid gap-2">
                             <Label htmlFor="description">Description</Label>
-                            <textarea
+                            <Textarea
                                 id="description"
                                 value={form.data.description}
                                 onChange={(e) =>
                                     form.setData('description', e.target.value)
                                 }
                                 rows={3}
-                                className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                                 placeholder="Optional description"
                             />
                             <InputError message={form.errors.description} />

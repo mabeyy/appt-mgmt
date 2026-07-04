@@ -5,7 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { Head, router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
-import { PageHeader } from '@/components/page-header';
+import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Select,

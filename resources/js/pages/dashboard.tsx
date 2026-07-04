@@ -11,11 +11,15 @@ import {
     Hourglass,
     UserX,
 } from 'lucide-react';
-import { AppBarChart, AppLineChart, AppPieChart } from '@/components/charts';
-import { EmptyState } from '@/components/empty-state';
-import { PageHeader } from '@/components/page-header';
-import { StatCard } from '@/components/stat-card';
-import { StatusBadge } from '@/components/status-badge';
+import {
+    AppBarChart,
+    AppLineChart,
+    AppPieChart,
+} from '@/components/shared/charts';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PageHeader } from '@/components/shared/page-header';
+import { StatCard } from '@/components/shared/stat-card';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,

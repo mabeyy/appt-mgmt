@@ -8,9 +8,9 @@ import {
     Printer,
     UserX,
 } from 'lucide-react';
-import { AppBarChart, AppPieChart } from '@/components/charts';
-import { PageHeader } from '@/components/page-header';
-import { StatCard } from '@/components/stat-card';
+import { AppBarChart, AppPieChart } from '@/components/shared/charts';
+import { PageHeader } from '@/components/shared/page-header';
+import { StatCard } from '@/components/shared/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

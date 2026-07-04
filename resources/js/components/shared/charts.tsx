@@ -13,7 +13,7 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import { EmptyState } from '@/components/empty-state';
+import { EmptyState } from '@/components/shared/empty-state';
 
 const AXIS = 'var(--color-muted-foreground)';
 const GRID = 'var(--color-border)';

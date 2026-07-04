@@ -28,4 +28,19 @@ class AdminNotification extends Model
     {
         $query->whereNull('read_at');
     }
+
+    /**
+     * Record an admin notification.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public static function record(string $type, string $title, ?string $message = null, array $data = []): self
+    {
+        return static::create([
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'data' => $data,
+        ]);
+    }
 }

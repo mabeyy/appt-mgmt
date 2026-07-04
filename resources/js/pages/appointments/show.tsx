@@ -1,8 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { PageHeader } from '@/components/page-header';
-import { StatusBadge } from '@/components/status-badge';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { PageHeader } from '@/components/shared/page-header';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {

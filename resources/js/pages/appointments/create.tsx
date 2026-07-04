@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import { AppointmentForm } from '@/components/appointment-form';
-import { PageHeader } from '@/components/page-header';
+import { AppointmentForm } from '@/components/shared/appointment-form';
+import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/appointments';
 import type { Customer, Service, StatusOption, Staff } from '@/types';

@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { Pencil, Plus, Search, Sparkles, Trash2 } from 'lucide-react';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { DataPagination } from '@/components/data-pagination';
-import { EmptyState } from '@/components/empty-state';
-import { PageHeader } from '@/components/page-header';
-import { ServiceFormDialog } from '@/components/service-form-dialog';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { DataPagination } from '@/components/shared/data-pagination';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PageHeader } from '@/components/shared/page-header';
+import { ServiceFormDialog } from '@/components/shared/service-form-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

@@ -2,7 +2,7 @@ import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
-import { FlashToaster } from '@/components/flash-toaster';
+import { FlashToaster } from '@/components/shared/flash-toaster';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppSidebarLayout({
