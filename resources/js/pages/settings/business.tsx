@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { WorkingDaysPicker } from '@/components/shared/working-days-picker';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -12,19 +13,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { edit, update } from '@/routes/business';
 import type { BusinessSettings } from '@/types';
-
-const DAYS = [
-    { key: 'monday', label: 'Mon' },
-    { key: 'tuesday', label: 'Tue' },
-    { key: 'wednesday', label: 'Wed' },
-    { key: 'thursday', label: 'Thu' },
-    { key: 'friday', label: 'Fri' },
-    { key: 'saturday', label: 'Sat' },
-    { key: 'sunday', label: 'Sun' },
-];
 
 const TIMEZONES = [
     'UTC',
@@ -64,14 +54,6 @@ export default function BusinessSettings({
         manual_approval: settings.manual_approval ?? true,
         logo: null as File | null,
     });
-
-    const toggleDay = (day: string) =>
-        form.setData(
-            'working_days',
-            form.data.working_days.includes(day)
-                ? form.data.working_days.filter((d) => d !== day)
-                : [...form.data.working_days, day],
-        );
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -210,32 +192,10 @@ export default function BusinessSettings({
                         description="Control availability and booking behavior"
                     />
 
-                    <div className="grid gap-2">
-                        <Label>Working days</Label>
-                        <div className="flex flex-wrap gap-1.5">
-                            {DAYS.map((day) => {
-                                const active = form.data.working_days.includes(
-                                    day.key,
-                                );
-
-                                return (
-                                    <button
-                                        key={day.key}
-                                        type="button"
-                                        onClick={() => toggleDay(day.key)}
-                                        className={cn(
-                                            'rounded-md border px-3 py-1.5 text-xs font-medium transition-colors',
-                                            active
-                                                ? 'border-primary bg-primary text-primary-foreground'
-                                                : 'border-input hover:bg-muted',
-                                        )}
-                                    >
-                                        {day.label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    <WorkingDaysPicker
+                        value={form.data.working_days}
+                        onChange={(days) => form.setData('working_days', days)}
+                    />
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="grid gap-2">

@@ -9,7 +9,7 @@ import {
     Pencil,
     Phone,
 } from 'lucide-react';
-import { CustomerFormDialog } from '@/components/shared/customer-form-dialog';
+import { CustomerFormDialog } from '@/components/customers/customer-form-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PageHeader } from '@/components/shared/page-header';
 import { StatCard } from '@/components/shared/stat-card';

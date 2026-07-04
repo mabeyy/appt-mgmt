@@ -69,6 +69,10 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer): RedirectResponse
     {
+        if ($customer->appointments()->exists()) {
+            return back()->with('error', 'This customer has appointments and cannot be deleted. Their history would be lost.');
+        }
+
         $customer->delete();
 
         return back()->with('success', 'Customer deleted successfully.');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminNotification;
 use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Staff;
@@ -57,6 +58,13 @@ class CalendarController extends Controller
         ]);
 
         $appointment->update($validated);
+
+        AdminNotification::record(
+            'rescheduled',
+            'Appointment rescheduled',
+            "{$appointment->appointment_number} — {$appointment->customer->full_name}",
+            ['appointment_id' => $appointment->id],
+        );
 
         return back()->with('success', 'Appointment rescheduled.');
     }

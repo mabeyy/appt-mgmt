@@ -1,5 +1,7 @@
 import { useForm } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { CustomerFields } from '@/components/appointments/customer-fields';
+import type { CustomerMode } from '@/components/appointments/customer-fields';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { store, update } from '@/routes/appointments';
 import type {
     Appointment,
+    AppointmentStatusValue,
     Customer,
     Service,
     StatusOption,
@@ -31,6 +34,20 @@ import type {
 type OptionService = Pick<Service, 'id' | 'name' | 'duration' | 'price'>;
 type OptionStaff = Pick<Staff, 'id' | 'name'>;
 type OptionCustomer = Pick<Customer, 'id' | 'full_name' | 'email' | 'phone'>;
+
+export type AppointmentFormData = {
+    customer_id: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    service_id: string;
+    staff_id: string;
+    appointment_date: string;
+    start_time: string;
+    duration: number;
+    status: AppointmentStatusValue;
+    notes: string;
+};
 
 export function AppointmentForm({
     appointment,
@@ -46,15 +63,13 @@ export function AppointmentForm({
     statuses: StatusOption[];
 }) {
     const isEdit = Boolean(appointment);
-    const [customerMode, setCustomerMode] = useState<'existing' | 'new'>(
-        appointment?.customer_id
-            ? 'existing'
-            : customers.length > 0
-              ? 'existing'
-              : 'new',
+    const [customerMode, setCustomerMode] = useState<CustomerMode>(
+        !appointment?.customer_id && customers.length === 0
+            ? 'new'
+            : 'existing',
     );
 
-    const form = useForm({
+    const form = useForm<AppointmentFormData>({
         customer_id: appointment?.customer_id
             ? String(appointment.customer_id)
             : '',
@@ -73,29 +88,6 @@ export function AppointmentForm({
         status: appointment?.status ?? 'pending',
         notes: appointment?.notes ?? '',
     });
-
-    const serviceItems = useMemo(
-        () => Object.fromEntries(services.map((s) => [String(s.id), s.name])),
-        [services],
-    );
-    const staffItems = useMemo(
-        () => ({
-            '': 'Unassigned',
-            ...Object.fromEntries(staff.map((s) => [String(s.id), s.name])),
-        }),
-        [staff],
-    );
-    const customerItems = useMemo(
-        () =>
-            Object.fromEntries(
-                customers.map((c) => [String(c.id), c.full_name]),
-            ),
-        [customers],
-    );
-    const statusItems = useMemo(
-        () => Object.fromEntries(statuses.map((s) => [s.value, s.label])),
-        [statuses],
-    );
 
     const onServiceChange = (value: string | null) => {
         const next = value ?? '';
@@ -131,7 +123,6 @@ export function AppointmentForm({
     return (
         <form onSubmit={submit} className="grid gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
-                {/* Customer */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Customer</CardTitle>
@@ -139,124 +130,16 @@ export function AppointmentForm({
                             Choose an existing customer or add a new one.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex gap-2">
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant={
-                                    customerMode === 'existing'
-                                        ? 'default'
-                                        : 'outline'
-                                }
-                                onClick={() => setCustomerMode('existing')}
-                                disabled={customers.length === 0}
-                            >
-                                Existing
-                            </Button>
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant={
-                                    customerMode === 'new'
-                                        ? 'default'
-                                        : 'outline'
-                                }
-                                onClick={() => setCustomerMode('new')}
-                            >
-                                New customer
-                            </Button>
-                        </div>
-
-                        {customerMode === 'existing' ? (
-                            <div className="grid gap-2">
-                                <Label>Customer</Label>
-                                <Select
-                                    value={form.data.customer_id}
-                                    onValueChange={(v) =>
-                                        form.setData('customer_id', String(v))
-                                    }
-                                    items={customerItems}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select a customer" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {customers.map((c) => (
-                                            <SelectItem
-                                                key={c.id}
-                                                value={String(c.id)}
-                                            >
-                                                {c.full_name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={form.errors.customer_id} />
-                            </div>
-                        ) : (
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="grid gap-2 sm:col-span-2">
-                                    <Label htmlFor="customer_name">
-                                        Full name
-                                    </Label>
-                                    <Input
-                                        id="customer_name"
-                                        value={form.data.customer_name}
-                                        onChange={(e) =>
-                                            form.setData(
-                                                'customer_name',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                    <InputError
-                                        message={form.errors.customer_name}
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="customer_email">
-                                        Email
-                                    </Label>
-                                    <Input
-                                        id="customer_email"
-                                        type="email"
-                                        value={form.data.customer_email}
-                                        onChange={(e) =>
-                                            form.setData(
-                                                'customer_email',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                    <InputError
-                                        message={form.errors.customer_email}
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="customer_phone">
-                                        Phone
-                                    </Label>
-                                    <Input
-                                        id="customer_phone"
-                                        value={form.data.customer_phone}
-                                        onChange={(e) =>
-                                            form.setData(
-                                                'customer_phone',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                    <InputError
-                                        message={form.errors.customer_phone}
-                                    />
-                                </div>
-                            </div>
-                        )}
+                    <CardContent>
+                        <CustomerFields
+                            form={form}
+                            customers={customers}
+                            mode={customerMode}
+                            onModeChange={setCustomerMode}
+                        />
                     </CardContent>
                 </Card>
 
-                {/* Schedule */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Schedule</CardTitle>
@@ -267,7 +150,9 @@ export function AppointmentForm({
                             <Select
                                 value={form.data.service_id}
                                 onValueChange={onServiceChange}
-                                items={serviceItems}
+                                items={Object.fromEntries(
+                                    services.map((s) => [String(s.id), s.name]),
+                                )}
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select a service" />
@@ -292,7 +177,15 @@ export function AppointmentForm({
                                 onValueChange={(v) =>
                                     form.setData('staff_id', String(v))
                                 }
-                                items={staffItems}
+                                items={{
+                                    '': 'Unassigned',
+                                    ...Object.fromEntries(
+                                        staff.map((s) => [
+                                            String(s.id),
+                                            s.name,
+                                        ]),
+                                    ),
+                                }}
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Unassigned" />
@@ -360,7 +253,6 @@ export function AppointmentForm({
                 </Card>
             </div>
 
-            {/* Sidebar: status + notes + actions */}
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
@@ -374,10 +266,12 @@ export function AppointmentForm({
                                 onValueChange={(v) =>
                                     form.setData(
                                         'status',
-                                        String(v) as typeof form.data.status,
+                                        String(v) as AppointmentStatusValue,
                                     )
                                 }
-                                items={statusItems}
+                                items={Object.fromEntries(
+                                    statuses.map((s) => [s.value, s.label]),
+                                )}
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Status" />

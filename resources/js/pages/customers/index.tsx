@@ -1,13 +1,13 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { Contact, Eye, Pencil, Plus, Search, Trash2 } from 'lucide-react';
-import { ConfirmDialog } from '@/components/shared/confirm-dialog';
-import { CustomerFormDialog } from '@/components/shared/customer-form-dialog';
+import { Head, Link } from '@inertiajs/react';
+import { Contact, Eye, Pencil, Plus } from 'lucide-react';
+import { CustomerFormDialog } from '@/components/customers/customer-form-dialog';
 import { DataPagination } from '@/components/shared/data-pagination';
+import { DeleteConfirmButton } from '@/components/shared/delete-confirm-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PageHeader } from '@/components/shared/page-header';
+import { SearchInput } from '@/components/shared/search-input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -47,15 +47,12 @@ export default function CustomersIndex({ customers, filters }: Props) {
                     />
                 </PageHeader>
 
-                <div className="relative sm:max-w-xs">
-                    <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        value={values.search}
-                        onChange={(e) => setValue('search', e.target.value)}
-                        placeholder="Search customers..."
-                        className="pl-8"
-                    />
-                </div>
+                <SearchInput
+                    value={values.search}
+                    onChange={(v) => setValue('search', v)}
+                    placeholder="Search customers..."
+                    className="sm:max-w-xs"
+                />
 
                 <Card className="py-0">
                     {customers.data.length === 0 ? (
@@ -139,30 +136,11 @@ export default function CustomersIndex({ customers, filters }: Props) {
                                                         </Button>
                                                     }
                                                 />
-                                                <ConfirmDialog
+                                                <DeleteConfirmButton
                                                     title="Delete customer?"
-                                                    description={`"${customer.full_name}" and all their appointments will be permanently removed.`}
-                                                    confirmLabel="Delete"
-                                                    destructive
-                                                    onConfirm={() =>
-                                                        router.delete(
-                                                            destroy(customer.id)
-                                                                .url,
-                                                            {
-                                                                preserveScroll: true,
-                                                            },
-                                                        )
-                                                    }
-                                                    trigger={
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon-sm"
-                                                        >
-                                                            <Trash2 className="text-destructive" />
-                                                            <span className="sr-only">
-                                                                Delete
-                                                            </span>
-                                                        </Button>
+                                                    description={`"${customer.full_name}" will be removed. Customers with existing appointments can't be deleted.`}
+                                                    url={
+                                                        destroy(customer.id).url
                                                     }
                                                 />
                                             </div>

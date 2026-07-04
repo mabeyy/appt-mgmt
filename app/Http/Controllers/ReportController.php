@@ -116,15 +116,21 @@ class ReportController extends Controller
      */
     protected function resolveRange(Request $request): array
     {
-        $period = $request->string('period', 'monthly')->toString();
+        $validated = $request->validate([
+            'period' => ['nullable', 'in:daily,weekly,monthly,yearly,custom'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        ]);
+
+        $period = $validated['period'] ?? 'monthly';
 
         return match ($period) {
             'daily' => [today(), today()],
             'weekly' => [today()->startOfWeek(), today()->endOfWeek()],
             'yearly' => [today()->startOfYear(), today()->endOfYear()],
             'custom' => [
-                $request->filled('date_from') ? Carbon::parse($request->string('date_from')->toString()) : today()->startOfMonth(),
-                $request->filled('date_to') ? Carbon::parse($request->string('date_to')->toString()) : today()->endOfMonth(),
+                isset($validated['date_from']) ? Carbon::parse($validated['date_from']) : today()->startOfMonth(),
+                isset($validated['date_to']) ? Carbon::parse($validated['date_to']) : today()->endOfMonth(),
             ],
             default => [today()->startOfMonth(), today()->endOfMonth()],
         };

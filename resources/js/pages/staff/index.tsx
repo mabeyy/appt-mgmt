@@ -1,21 +1,15 @@
-import { Head, router } from '@inertiajs/react';
-import { Pencil, Plus, Search, Trash2, UsersRound } from 'lucide-react';
-import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { Head } from '@inertiajs/react';
+import { Pencil, Plus, UsersRound } from 'lucide-react';
 import { DataPagination } from '@/components/shared/data-pagination';
+import { DeleteConfirmButton } from '@/components/shared/delete-confirm-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PageHeader } from '@/components/shared/page-header';
-import { StaffFormDialog } from '@/components/shared/staff-form-dialog';
+import { SearchInput } from '@/components/shared/search-input';
+import { StatusFilterSelect } from '@/components/shared/status-filter-select';
+import { StaffFormDialog } from '@/components/staff/staff-form-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -58,33 +52,16 @@ export default function StaffIndex({ staff, filters }: Props) {
                 </PageHeader>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="relative flex-1 sm:max-w-xs">
-                        <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            value={values.search}
-                            onChange={(e) => setValue('search', e.target.value)}
-                            placeholder="Search staff..."
-                            className="pl-8"
-                        />
-                    </div>
-                    <Select
+                    <SearchInput
+                        value={values.search}
+                        onChange={(v) => setValue('search', v)}
+                        placeholder="Search staff..."
+                        className="flex-1 sm:max-w-xs"
+                    />
+                    <StatusFilterSelect
                         value={values.status}
-                        onValueChange={(v) => setValue('status', String(v))}
-                        items={{
-                            all: 'All statuses',
-                            active: 'Active',
-                            inactive: 'Inactive',
-                        }}
-                    >
-                        <SelectTrigger className="w-40">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All statuses</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        onValueChange={(v) => setValue('status', v)}
+                    />
                 </div>
 
                 <Card className="py-0">
@@ -192,31 +169,10 @@ export default function StaffIndex({ staff, filters }: Props) {
                                                         </Button>
                                                     }
                                                 />
-                                                <ConfirmDialog
+                                                <DeleteConfirmButton
                                                     title="Delete staff member?"
                                                     description={`"${member.name}" will be removed. Their appointments will be left unassigned.`}
-                                                    confirmLabel="Delete"
-                                                    destructive
-                                                    onConfirm={() =>
-                                                        router.delete(
-                                                            destroy(member.id)
-                                                                .url,
-                                                            {
-                                                                preserveScroll: true,
-                                                            },
-                                                        )
-                                                    }
-                                                    trigger={
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon-sm"
-                                                        >
-                                                            <Trash2 className="text-destructive" />
-                                                            <span className="sr-only">
-                                                                Delete
-                                                            </span>
-                                                        </Button>
-                                                    }
+                                                    url={destroy(member.id).url}
                                                 />
                                             </div>
                                         </TableCell>

@@ -154,7 +154,7 @@ class AppointmentController extends Controller
     public function bulkDestroy(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'ids' => ['required', 'array'],
+            'ids' => ['required', 'array', 'max:100'],
             'ids.*' => ['integer', 'exists:appointments,id'],
         ]);
 
@@ -166,7 +166,7 @@ class AppointmentController extends Controller
     public function bulkStatus(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'ids' => ['required', 'array'],
+            'ids' => ['required', 'array', 'max:100'],
             'ids.*' => ['integer', 'exists:appointments,id'],
             'status' => ['required', new Enum(AppointmentStatus::class)],
         ]);

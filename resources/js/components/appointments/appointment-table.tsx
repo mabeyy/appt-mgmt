@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     ArrowDown,
     ArrowUp,
@@ -7,9 +7,8 @@ import {
     Eye,
     Pencil,
     Plus,
-    Trash2,
 } from 'lucide-react';
-import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { DeleteConfirmButton } from '@/components/shared/delete-confirm-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
@@ -204,30 +203,10 @@ export function AppointmentTable({
                                         <Pencil />
                                         <span className="sr-only">Edit</span>
                                     </Button>
-                                    <ConfirmDialog
+                                    <DeleteConfirmButton
                                         title="Delete appointment?"
                                         description={`${appt.appointment_number} will be permanently removed.`}
-                                        confirmLabel="Delete"
-                                        destructive
-                                        onConfirm={() =>
-                                            router.delete(
-                                                destroy(appt.id).url,
-                                                {
-                                                    preserveScroll: true,
-                                                },
-                                            )
-                                        }
-                                        trigger={
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-sm"
-                                            >
-                                                <Trash2 className="text-destructive" />
-                                                <span className="sr-only">
-                                                    Delete
-                                                </span>
-                                            </Button>
-                                        }
+                                        url={destroy(appt.id).url}
                                     />
                                 </div>
                             </TableCell>
