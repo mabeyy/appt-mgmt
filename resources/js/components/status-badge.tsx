@@ -25,7 +25,8 @@ const STATUS_STYLES: Record<
     },
     cancelled: {
         label: 'Cancelled',
-        className: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400',
+        className:
+            'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400',
         dot: 'bg-red-500',
     },
     no_show: {

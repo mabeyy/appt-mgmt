@@ -42,12 +42,19 @@ export default function NotificationsIndex({
         <>
             <Head title="Notifications" />
             <div className="flex flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Notifications" description="Appointment activity across your business.">
+                <PageHeader
+                    title="Notifications"
+                    description="Appointment activity across your business."
+                >
                     <Button
                         variant="outline"
                         disabled={!hasUnread}
                         onClick={() =>
-                            router.post(readAll().url, {}, { preserveScroll: true })
+                            router.post(
+                                readAll().url,
+                                {},
+                                { preserveScroll: true },
+                            )
                         }
                     >
                         <CheckCheck /> Mark all as read
@@ -68,6 +75,7 @@ export default function NotificationsIndex({
                             {notifications.data.map((n) => {
                                 const Icon = ICONS[n.type] ?? Bell;
                                 const unread = !n.read_at;
+
                                 return (
                                     <li
                                         key={n.id}
@@ -80,7 +88,9 @@ export default function NotificationsIndex({
                                             <Icon className="size-4.5 text-muted-foreground" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium">{n.title}</p>
+                                            <p className="text-sm font-medium">
+                                                {n.title}
+                                            </p>
                                             {n.message && (
                                                 <p className="truncate text-sm text-muted-foreground">
                                                     {n.message}
@@ -95,7 +105,13 @@ export default function NotificationsIndex({
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() =>
-                                                    router.post(read(n.id).url, {}, { preserveScroll: true })
+                                                    router.post(
+                                                        read(n.id).url,
+                                                        {},
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
+                                                    )
                                                 }
                                             >
                                                 Mark read

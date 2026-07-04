@@ -26,7 +26,10 @@ import {
 } from '@/components/ui/card';
 import { formatDate, formatTime } from '@/lib/format';
 import { dashboard } from '@/routes';
-import { create as createAppointment, show as showAppointment } from '@/routes/appointments';
+import {
+    create as createAppointment,
+    show as showAppointment,
+} from '@/routes/appointments';
 import { index as calendar } from '@/routes/calendar';
 import { index as reports } from '@/routes/reports';
 import type { AppointmentWidgetItem } from '@/types';
@@ -53,14 +56,62 @@ type Props = {
 };
 
 const cards = [
-    { key: 'total', label: 'Total Appointments', icon: CalendarDays, accent: 'text-primary', iconBg: 'bg-primary/10' },
-    { key: 'today', label: "Today's Appointments", icon: CalendarClock, accent: 'text-sky-600 dark:text-sky-400', iconBg: 'bg-sky-500/10' },
-    { key: 'upcoming', label: 'Upcoming', icon: CalendarArrowUp, accent: 'text-indigo-600 dark:text-indigo-400', iconBg: 'bg-indigo-500/10' },
-    { key: 'pending', label: 'Pending', icon: Hourglass, accent: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-500/10' },
-    { key: 'confirmed', label: 'Confirmed', icon: CalendarCheck2, accent: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-500/10' },
-    { key: 'completed', label: 'Completed', icon: CircleCheckBig, accent: 'text-green-600 dark:text-green-400', iconBg: 'bg-green-500/10' },
-    { key: 'cancelled', label: 'Cancelled', icon: CircleX, accent: 'text-red-600 dark:text-red-400', iconBg: 'bg-red-500/10' },
-    { key: 'no_show', label: 'No Show', icon: UserX, accent: 'text-neutral-600 dark:text-neutral-300', iconBg: 'bg-neutral-500/10' },
+    {
+        key: 'total',
+        label: 'Total Appointments',
+        icon: CalendarDays,
+        accent: 'text-primary',
+        iconBg: 'bg-primary/10',
+    },
+    {
+        key: 'today',
+        label: "Today's Appointments",
+        icon: CalendarClock,
+        accent: 'text-sky-600 dark:text-sky-400',
+        iconBg: 'bg-sky-500/10',
+    },
+    {
+        key: 'upcoming',
+        label: 'Upcoming',
+        icon: CalendarArrowUp,
+        accent: 'text-indigo-600 dark:text-indigo-400',
+        iconBg: 'bg-indigo-500/10',
+    },
+    {
+        key: 'pending',
+        label: 'Pending',
+        icon: Hourglass,
+        accent: 'text-amber-600 dark:text-amber-400',
+        iconBg: 'bg-amber-500/10',
+    },
+    {
+        key: 'confirmed',
+        label: 'Confirmed',
+        icon: CalendarCheck2,
+        accent: 'text-blue-600 dark:text-blue-400',
+        iconBg: 'bg-blue-500/10',
+    },
+    {
+        key: 'completed',
+        label: 'Completed',
+        icon: CircleCheckBig,
+        accent: 'text-green-600 dark:text-green-400',
+        iconBg: 'bg-green-500/10',
+    },
+    {
+        key: 'cancelled',
+        label: 'Cancelled',
+        icon: CircleX,
+        accent: 'text-red-600 dark:text-red-400',
+        iconBg: 'bg-red-500/10',
+    },
+    {
+        key: 'no_show',
+        label: 'No Show',
+        icon: UserX,
+        accent: 'text-neutral-600 dark:text-neutral-300',
+        iconBg: 'bg-neutral-500/10',
+    },
 ] as const;
 
 function WidgetList({
@@ -80,11 +131,17 @@ function WidgetList({
         <Card className="flex flex-col">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
-                {description && <CardDescription>{description}</CardDescription>}
+                {description && (
+                    <CardDescription>{description}</CardDescription>
+                )}
             </CardHeader>
             <CardContent className="flex-1">
                 {items.length === 0 ? (
-                    <EmptyState icon={CalendarDays} title="Nothing here yet" description={empty} />
+                    <EmptyState
+                        icon={CalendarDays}
+                        title="Nothing here yet"
+                        description={empty}
+                    />
                 ) : (
                     <ul className="divide-y">
                         {items.map((item) => (
@@ -133,10 +190,16 @@ export default function Dashboard({
                     title="Dashboard"
                     description="An overview of your appointment activity."
                 >
-                    <Button variant="outline" render={<Link href={reports()} />}>
+                    <Button
+                        variant="outline"
+                        render={<Link href={reports()} />}
+                    >
                         <FileChartColumn /> Reports
                     </Button>
-                    <Button variant="outline" render={<Link href={calendar()} />}>
+                    <Button
+                        variant="outline"
+                        render={<Link href={calendar()} />}
+                    >
                         <CalendarDays /> Calendar
                     </Button>
                     <Button render={<Link href={createAppointment()} />}>
@@ -166,7 +229,11 @@ export default function Dashboard({
                             <CardDescription>Last 12 months</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <AppLineChart data={monthlyTrends} xKey="month" yKey="count" />
+                            <AppLineChart
+                                data={monthlyTrends}
+                                xKey="month"
+                                yKey="count"
+                            />
                         </CardContent>
                     </Card>
                     <Card>
@@ -183,10 +250,17 @@ export default function Dashboard({
                 <Card>
                     <CardHeader>
                         <CardTitle>Most Booked Services</CardTitle>
-                        <CardDescription>Top services by number of appointments</CardDescription>
+                        <CardDescription>
+                            Top services by number of appointments
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <AppBarChart data={mostBookedServices} xKey="name" yKey="count" height={260} />
+                        <AppBarChart
+                            data={mostBookedServices}
+                            xKey="name"
+                            yKey="count"
+                            height={260}
+                        />
                     </CardContent>
                 </Card>
 

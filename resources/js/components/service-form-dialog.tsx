@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
-import { type ReactElement, useState } from 'react';
+import { useState } from 'react';
+import type { ReactElement } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -41,9 +42,13 @@ export function ServiceFormDialog({
             preserveScroll: true,
             onSuccess: () => {
                 setOpen(false);
-                if (!isEdit) form.reset();
+
+                if (!isEdit) {
+                    form.reset();
+                }
             },
         };
+
         if (isEdit && service) {
             form.put(update(service.id).url, options);
         } else {
@@ -56,7 +61,11 @@ export function ServiceFormDialog({
             open={open}
             onOpenChange={(next) => {
                 setOpen(next);
-                if (next && !isEdit) form.reset();
+
+                if (next && !isEdit) {
+                    form.reset();
+                }
+
                 form.clearErrors();
             }}
         >
@@ -64,7 +73,9 @@ export function ServiceFormDialog({
             <DialogContent className="sm:max-w-lg">
                 <form onSubmit={submit}>
                     <DialogHeader>
-                        <DialogTitle>{isEdit ? 'Edit service' : 'New service'}</DialogTitle>
+                        <DialogTitle>
+                            {isEdit ? 'Edit service' : 'New service'}
+                        </DialogTitle>
                         <DialogDescription>
                             {isEdit
                                 ? 'Update the details of this service.'
@@ -78,7 +89,9 @@ export function ServiceFormDialog({
                             <Input
                                 id="name"
                                 value={form.data.name}
-                                onChange={(e) => form.setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('name', e.target.value)
+                                }
                                 placeholder="e.g. Haircut"
                                 autoFocus
                             />
@@ -90,7 +103,9 @@ export function ServiceFormDialog({
                             <textarea
                                 id="description"
                                 value={form.data.description}
-                                onChange={(e) => form.setData('description', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('description', e.target.value)
+                                }
                                 rows={3}
                                 className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                                 placeholder="Optional description"
@@ -100,13 +115,20 @@ export function ServiceFormDialog({
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="duration">Duration (minutes)</Label>
+                                <Label htmlFor="duration">
+                                    Duration (minutes)
+                                </Label>
                                 <Input
                                     id="duration"
                                     type="number"
                                     min={5}
                                     value={form.data.duration}
-                                    onChange={(e) => form.setData('duration', Number(e.target.value))}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'duration',
+                                            Number(e.target.value),
+                                        )
+                                    }
                                 />
                                 <InputError message={form.errors.duration} />
                             </div>
@@ -118,7 +140,9 @@ export function ServiceFormDialog({
                                     min={0}
                                     step="0.01"
                                     value={form.data.price}
-                                    onChange={(e) => form.setData('price', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('price', e.target.value)
+                                    }
                                     placeholder="0.00"
                                 />
                                 <InputError message={form.errors.price} />
@@ -132,7 +156,9 @@ export function ServiceFormDialog({
                                     form.setData('is_active', checked === true)
                                 }
                             />
-                            <span className="text-sm">Active (available for booking)</span>
+                            <span className="text-sm">
+                                Active (available for booking)
+                            </span>
                         </label>
                     </div>
 
@@ -153,4 +179,3 @@ export function ServiceFormDialog({
         </Dialog>
     );
 }
-

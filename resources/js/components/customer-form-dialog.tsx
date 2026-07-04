@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
-import { type ReactElement, useState } from 'react';
+import { useState } from 'react';
+import type { ReactElement } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,9 +40,13 @@ export function CustomerFormDialog({
             preserveScroll: true,
             onSuccess: () => {
                 setOpen(false);
-                if (!isEdit) form.reset();
+
+                if (!isEdit) {
+                    form.reset();
+                }
             },
         };
+
         if (isEdit && customer) {
             form.put(update(customer.id).url, options);
         } else {
@@ -61,8 +66,12 @@ export function CustomerFormDialog({
             <DialogContent className="sm:max-w-lg">
                 <form onSubmit={submit}>
                     <DialogHeader>
-                        <DialogTitle>{isEdit ? 'Edit customer' : 'New customer'}</DialogTitle>
-                        <DialogDescription>Customer contact details.</DialogDescription>
+                        <DialogTitle>
+                            {isEdit ? 'Edit customer' : 'New customer'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Customer contact details.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
@@ -71,7 +80,9 @@ export function CustomerFormDialog({
                             <Input
                                 id="full_name"
                                 value={form.data.full_name}
-                                onChange={(e) => form.setData('full_name', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('full_name', e.target.value)
+                                }
                                 autoFocus
                             />
                             <InputError message={form.errors.full_name} />
@@ -83,7 +94,9 @@ export function CustomerFormDialog({
                                     id="email"
                                     type="email"
                                     value={form.data.email}
-                                    onChange={(e) => form.setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('email', e.target.value)
+                                    }
                                 />
                                 <InputError message={form.errors.email} />
                             </div>
@@ -92,7 +105,9 @@ export function CustomerFormDialog({
                                 <Input
                                     id="phone"
                                     value={form.data.phone}
-                                    onChange={(e) => form.setData('phone', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('phone', e.target.value)
+                                    }
                                 />
                                 <InputError message={form.errors.phone} />
                             </div>
@@ -102,7 +117,9 @@ export function CustomerFormDialog({
                             <textarea
                                 id="address"
                                 value={form.data.address}
-                                onChange={(e) => form.setData('address', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('address', e.target.value)
+                                }
                                 rows={2}
                                 className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                             />
@@ -111,7 +128,11 @@ export function CustomerFormDialog({
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                        >
                             Cancel
                         </Button>
                         <Button type="submit" disabled={form.processing}>

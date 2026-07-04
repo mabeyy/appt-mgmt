@@ -29,13 +29,17 @@ export function DataPagination({
     return (
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
             <p className="text-sm text-muted-foreground">
-                Showing <span className="font-medium text-foreground">{from ?? 0}</span>{' '}
-                to <span className="font-medium text-foreground">{to ?? 0}</span> of{' '}
-                <span className="font-medium text-foreground">{total}</span> results
+                Showing{' '}
+                <span className="font-medium text-foreground">{from ?? 0}</span>{' '}
+                to{' '}
+                <span className="font-medium text-foreground">{to ?? 0}</span>{' '}
+                of <span className="font-medium text-foreground">{total}</span>{' '}
+                results
             </p>
             <div className="flex flex-wrap items-center gap-1">
                 {links.map((link, i) => {
                     const text = label(link.label);
+
                     if (!link.url) {
                         return (
                             <span
@@ -46,6 +50,7 @@ export function DataPagination({
                             </span>
                         );
                     }
+
                     return (
                         <Link
                             key={i}

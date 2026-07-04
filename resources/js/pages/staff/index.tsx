@@ -44,7 +44,10 @@ export default function StaffIndex({ staff, filters }: Props) {
         <>
             <Head title="Staff" />
             <div className="flex flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Staff" description="Manage the people who deliver your services.">
+                <PageHeader
+                    title="Staff"
+                    description="Manage the people who deliver your services."
+                >
                     <StaffFormDialog
                         trigger={
                             <Button>
@@ -67,7 +70,11 @@ export default function StaffIndex({ staff, filters }: Props) {
                     <Select
                         value={values.status}
                         onValueChange={(v) => setValue('status', String(v))}
-                        items={{ all: 'All statuses', active: 'Active', inactive: 'Inactive' }}
+                        items={{
+                            all: 'All statuses',
+                            active: 'Active',
+                            inactive: 'Inactive',
+                        }}
                     >
                         <SelectTrigger className="w-40">
                             <SelectValue />
@@ -105,14 +112,18 @@ export default function StaffIndex({ staff, filters }: Props) {
                                     <TableHead>Contact</TableHead>
                                     <TableHead>Working hours</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="text-right">
+                                        Actions
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {staff.data.map((member) => (
                                     <TableRow key={member.id}>
                                         <TableCell>
-                                            <div className="font-medium">{member.name}</div>
+                                            <div className="font-medium">
+                                                {member.name}
+                                            </div>
                                             {member.position && (
                                                 <div className="text-xs text-muted-foreground">
                                                     {member.position}
@@ -120,18 +131,32 @@ export default function StaffIndex({ staff, filters }: Props) {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="text-sm">{member.email ?? '—'}</div>
+                                            <div className="text-sm">
+                                                {member.email ?? '—'}
+                                            </div>
                                             <div className="text-xs text-muted-foreground">
                                                 {member.phone ?? ''}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-sm">
-                                            {member.working_start && member.working_end ? (
+                                            {member.working_start &&
+                                            member.working_end ? (
                                                 <>
-                                                    {formatTime(member.working_start)} –{' '}
-                                                    {formatTime(member.working_end)}
+                                                    {formatTime(
+                                                        member.working_start,
+                                                    )}{' '}
+                                                    –{' '}
+                                                    {formatTime(
+                                                        member.working_end,
+                                                    )}
                                                     <div className="text-xs text-muted-foreground">
-                                                        {(member.working_days ?? []).length} days/week
+                                                        {
+                                                            (
+                                                                member.working_days ??
+                                                                []
+                                                            ).length
+                                                        }{' '}
+                                                        days/week
                                                     </div>
                                                 </>
                                             ) : (
@@ -139,8 +164,16 @@ export default function StaffIndex({ staff, filters }: Props) {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={member.is_active ? 'default' : 'secondary'}>
-                                                {member.is_active ? 'Active' : 'Inactive'}
+                                            <Badge
+                                                variant={
+                                                    member.is_active
+                                                        ? 'default'
+                                                        : 'secondary'
+                                                }
+                                            >
+                                                {member.is_active
+                                                    ? 'Active'
+                                                    : 'Inactive'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
@@ -148,9 +181,14 @@ export default function StaffIndex({ staff, filters }: Props) {
                                                 <StaffFormDialog
                                                     staff={member}
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Pencil />
-                                                            <span className="sr-only">Edit</span>
+                                                            <span className="sr-only">
+                                                                Edit
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />
@@ -160,14 +198,23 @@ export default function StaffIndex({ staff, filters }: Props) {
                                                     confirmLabel="Delete"
                                                     destructive
                                                     onConfirm={() =>
-                                                        router.delete(destroy(member.id).url, {
-                                                            preserveScroll: true,
-                                                        })
+                                                        router.delete(
+                                                            destroy(member.id)
+                                                                .url,
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
                                                     }
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Trash2 className="text-destructive" />
-                                                            <span className="sr-only">Delete</span>
+                                                            <span className="sr-only">
+                                                                Delete
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />

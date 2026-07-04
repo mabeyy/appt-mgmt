@@ -15,12 +15,7 @@ import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
     TableBody,
@@ -30,8 +25,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate, formatTime } from '@/lib/format';
-import { index } from '@/routes/customers';
 import { show as showAppointment } from '@/routes/appointments';
+import { index } from '@/routes/customers';
 import type { Appointment, Customer } from '@/types';
 
 type Props = {
@@ -45,11 +40,18 @@ export default function CustomerShow({ customer, stats }: Props) {
             <Head title={customer.full_name} />
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon-sm" render={<Link href={index()} />}>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        render={<Link href={index()} />}
+                    >
                         <ArrowLeft />
                         <span className="sr-only">Back</span>
                     </Button>
-                    <PageHeader title={customer.full_name} description="Customer profile">
+                    <PageHeader
+                        title={customer.full_name}
+                        description="Customer profile"
+                    >
                         <CustomerFormDialog
                             customer={customer}
                             trigger={
@@ -62,7 +64,11 @@ export default function CustomerShow({ customer, stats }: Props) {
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-3">
-                    <StatCard label="Total Appointments" value={stats.total} icon={CalendarCheck2} />
+                    <StatCard
+                        label="Total Appointments"
+                        value={stats.total}
+                        icon={CalendarCheck2}
+                    />
                     <StatCard
                         label="Upcoming"
                         value={stats.upcoming}
@@ -128,17 +134,29 @@ export default function CustomerShow({ customer, stats }: Props) {
                                         <TableRow key={appt.id}>
                                             <TableCell className="font-medium">
                                                 <Link
-                                                    href={showAppointment(appt.id)}
+                                                    href={showAppointment(
+                                                        appt.id,
+                                                    )}
                                                     className="hover:underline"
                                                 >
                                                     {appt.appointment_number}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell>{appt.service?.name ?? '—'}</TableCell>
-                                            <TableCell>{formatDate(appt.appointment_date)}</TableCell>
-                                            <TableCell>{formatTime(appt.start_time)}</TableCell>
                                             <TableCell>
-                                                <StatusBadge status={appt.status} />
+                                                {appt.service?.name ?? '—'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatDate(
+                                                    appt.appointment_date,
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatTime(appt.start_time)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <StatusBadge
+                                                    status={appt.status}
+                                                />
                                             </TableCell>
                                         </TableRow>
                                     ))}

@@ -47,7 +47,13 @@ import {
     index,
     show,
 } from '@/routes/appointments';
-import type { Appointment, Paginated, Service, StatusOption, Staff } from '@/types';
+import type {
+    Appointment,
+    Paginated,
+    Service,
+    StatusOption,
+    Staff,
+} from '@/types';
 
 type Props = {
     appointments: Paginated<Appointment>;
@@ -95,23 +101,26 @@ export default function AppointmentsIndex({
     staff,
     statuses,
 }: Props) {
-    const { values, setValue, setValues, reset } = useTableFilters(index().url, {
-        search: filters.search ?? '',
-        status: filters.status ?? 'all',
-        service_id: filters.service_id ?? 'all',
-        staff_id: filters.staff_id ?? 'all',
-        date_from: filters.date_from ?? '',
-        date_to: filters.date_to ?? '',
-        sort: filters.sort ?? 'appointment_date',
-        direction: filters.direction ?? 'desc',
-    });
+    const { values, setValue, setValues, reset } = useTableFilters(
+        index().url,
+        {
+            search: filters.search ?? '',
+            status: filters.status ?? 'all',
+            service_id: filters.service_id ?? 'all',
+            staff_id: filters.staff_id ?? 'all',
+            date_from: filters.date_from ?? '',
+            date_to: filters.date_to ?? '',
+            sort: filters.sort ?? 'appointment_date',
+            direction: filters.direction ?? 'desc',
+        },
+    );
 
     const [selected, setSelected] = useState<number[]>([]);
     const pageIds = appointments.data.map((a) => a.id);
-    const allSelected = pageIds.length > 0 && pageIds.every((id) => selected.includes(id));
+    const allSelected =
+        pageIds.length > 0 && pageIds.every((id) => selected.includes(id));
 
-    const toggleAll = () =>
-        setSelected(allSelected ? [] : pageIds);
+    const toggleAll = () => setSelected(allSelected ? [] : pageIds);
     const toggleOne = (id: number) =>
         setSelected((prev) =>
             prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
@@ -121,7 +130,10 @@ export default function AppointmentsIndex({
         setValues((prev) => ({
             ...prev,
             sort: column,
-            direction: prev.sort === column && prev.direction === 'asc' ? 'desc' : 'asc',
+            direction:
+                prev.sort === column && prev.direction === 'asc'
+                    ? 'desc'
+                    : 'asc',
         }));
     };
 
@@ -151,7 +163,10 @@ export default function AppointmentsIndex({
         <>
             <Head title="Appointments" />
             <div className="flex flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Appointments" description="Search, filter, and manage all appointments.">
+                <PageHeader
+                    title="Appointments"
+                    description="Search, filter, and manage all appointments."
+                >
                     <Button render={<Link href={create()} />}>
                         <CalendarPlus /> Add Appointment
                     </Button>
@@ -171,7 +186,12 @@ export default function AppointmentsIndex({
                     <Select
                         value={values.status}
                         onValueChange={(v) => setValue('status', String(v))}
-                        items={{ all: 'All statuses', ...Object.fromEntries(statuses.map((s) => [s.value, s.label])) }}
+                        items={{
+                            all: 'All statuses',
+                            ...Object.fromEntries(
+                                statuses.map((s) => [s.value, s.label]),
+                            ),
+                        }}
                     >
                         <SelectTrigger className="w-full">
                             <SelectValue />
@@ -188,7 +208,12 @@ export default function AppointmentsIndex({
                     <Select
                         value={values.service_id}
                         onValueChange={(v) => setValue('service_id', String(v))}
-                        items={{ all: 'All services', ...Object.fromEntries(services.map((s) => [String(s.id), s.name])) }}
+                        items={{
+                            all: 'All services',
+                            ...Object.fromEntries(
+                                services.map((s) => [String(s.id), s.name]),
+                            ),
+                        }}
                     >
                         <SelectTrigger className="w-full">
                             <SelectValue />
@@ -205,7 +230,12 @@ export default function AppointmentsIndex({
                     <Select
                         value={values.staff_id}
                         onValueChange={(v) => setValue('staff_id', String(v))}
-                        items={{ all: 'All staff', ...Object.fromEntries(staff.map((s) => [String(s.id), s.name])) }}
+                        items={{
+                            all: 'All staff',
+                            ...Object.fromEntries(
+                                staff.map((s) => [String(s.id), s.name]),
+                            ),
+                        }}
                     >
                         <SelectTrigger className="w-full">
                             <SelectValue />
@@ -220,19 +250,27 @@ export default function AppointmentsIndex({
                         </SelectContent>
                     </Select>
                     <div className="grid gap-1.5">
-                        <span className="text-xs text-muted-foreground">From</span>
+                        <span className="text-xs text-muted-foreground">
+                            From
+                        </span>
                         <Input
                             type="date"
                             value={values.date_from}
-                            onChange={(e) => setValue('date_from', e.target.value)}
+                            onChange={(e) =>
+                                setValue('date_from', e.target.value)
+                            }
                         />
                     </div>
                     <div className="grid gap-1.5">
-                        <span className="text-xs text-muted-foreground">To</span>
+                        <span className="text-xs text-muted-foreground">
+                            To
+                        </span>
                         <Input
                             type="date"
                             value={values.date_to}
-                            onChange={(e) => setValue('date_to', e.target.value)}
+                            onChange={(e) =>
+                                setValue('date_to', e.target.value)
+                            }
                         />
                     </div>
                     {hasFilters && (
@@ -247,19 +285,28 @@ export default function AppointmentsIndex({
                 {/* Bulk action bar */}
                 {selected.length > 0 && (
                     <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 px-4 py-2.5">
-                        <span className="text-sm font-medium">{selected.length} selected</span>
+                        <span className="text-sm font-medium">
+                            {selected.length} selected
+                        </span>
                         <div className="flex items-center gap-2">
                             <Select
                                 value=""
-                                onValueChange={(v) => v && doBulkStatus(String(v))}
-                                items={Object.fromEntries(statuses.map((s) => [s.value, s.label]))}
+                                onValueChange={(v) =>
+                                    v && doBulkStatus(String(v))
+                                }
+                                items={Object.fromEntries(
+                                    statuses.map((s) => [s.value, s.label]),
+                                )}
                             >
                                 <SelectTrigger size="sm">
                                     <SelectValue placeholder="Set status" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {statuses.map((s) => (
-                                        <SelectItem key={s.value} value={s.value}>
+                                        <SelectItem
+                                            key={s.value}
+                                            value={s.value}
+                                        >
                                             {s.label}
                                         </SelectItem>
                                     ))}
@@ -273,7 +320,8 @@ export default function AppointmentsIndex({
                                 onConfirm={doBulkDelete}
                                 trigger={
                                     <Button variant="outline" size="sm">
-                                        <Trash2 className="text-destructive" /> Delete
+                                        <Trash2 className="text-destructive" />{' '}
+                                        Delete
                                     </Button>
                                 }
                             />
@@ -315,7 +363,10 @@ export default function AppointmentsIndex({
                                         <SortHeader
                                             label="Number"
                                             column="appointment_number"
-                                            active={values.sort === 'appointment_number'}
+                                            active={
+                                                values.sort ===
+                                                'appointment_number'
+                                            }
                                             direction={values.direction}
                                             onSort={onSort}
                                         />
@@ -327,7 +378,10 @@ export default function AppointmentsIndex({
                                         <SortHeader
                                             label="Date"
                                             column="appointment_date"
-                                            active={values.sort === 'appointment_date'}
+                                            active={
+                                                values.sort ===
+                                                'appointment_date'
+                                            }
                                             direction={values.direction}
                                             onSort={onSort}
                                         />
@@ -342,32 +396,55 @@ export default function AppointmentsIndex({
                                             onSort={onSort}
                                         />
                                     </TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="text-right">
+                                        Actions
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {appointments.data.map((appt) => (
                                     <TableRow
                                         key={appt.id}
-                                        data-state={selected.includes(appt.id) ? 'selected' : undefined}
+                                        data-state={
+                                            selected.includes(appt.id)
+                                                ? 'selected'
+                                                : undefined
+                                        }
                                     >
                                         <TableCell>
                                             <Checkbox
-                                                checked={selected.includes(appt.id)}
-                                                onCheckedChange={() => toggleOne(appt.id)}
+                                                checked={selected.includes(
+                                                    appt.id,
+                                                )}
+                                                onCheckedChange={() =>
+                                                    toggleOne(appt.id)
+                                                }
                                                 aria-label={`Select ${appt.appointment_number}`}
                                             />
                                         </TableCell>
                                         <TableCell className="font-medium">
-                                            <Link href={show(appt.id)} className="hover:underline">
+                                            <Link
+                                                href={show(appt.id)}
+                                                className="hover:underline"
+                                            >
                                                 {appt.appointment_number}
                                             </Link>
                                         </TableCell>
-                                        <TableCell>{appt.customer?.full_name ?? '—'}</TableCell>
-                                        <TableCell>{appt.service?.name ?? '—'}</TableCell>
-                                        <TableCell>{appt.staff?.name ?? '—'}</TableCell>
-                                        <TableCell>{formatDate(appt.appointment_date)}</TableCell>
-                                        <TableCell>{formatTime(appt.start_time)}</TableCell>
+                                        <TableCell>
+                                            {appt.customer?.full_name ?? '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {appt.service?.name ?? '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {appt.staff?.name ?? '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatDate(appt.appointment_date)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatTime(appt.start_time)}
+                                        </TableCell>
                                         <TableCell>
                                             <StatusBadge status={appt.status} />
                                         </TableCell>
@@ -376,18 +453,30 @@ export default function AppointmentsIndex({
                                                 <Button
                                                     variant="ghost"
                                                     size="icon-sm"
-                                                    render={<Link href={show(appt.id)} />}
+                                                    render={
+                                                        <Link
+                                                            href={show(appt.id)}
+                                                        />
+                                                    }
                                                 >
                                                     <Eye />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon-sm"
-                                                    render={<Link href={edit(appt.id)} />}
+                                                    render={
+                                                        <Link
+                                                            href={edit(appt.id)}
+                                                        />
+                                                    }
                                                 >
                                                     <Pencil />
-                                                    <span className="sr-only">Edit</span>
+                                                    <span className="sr-only">
+                                                        Edit
+                                                    </span>
                                                 </Button>
                                                 <ConfirmDialog
                                                     title="Delete appointment?"
@@ -395,14 +484,23 @@ export default function AppointmentsIndex({
                                                     confirmLabel="Delete"
                                                     destructive
                                                     onConfirm={() =>
-                                                        router.delete(destroy(appt.id).url, {
-                                                            preserveScroll: true,
-                                                        })
+                                                        router.delete(
+                                                            destroy(appt.id)
+                                                                .url,
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
                                                     }
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Trash2 className="text-destructive" />
-                                                            <span className="sr-only">Delete</span>
+                                                            <span className="sr-only">
+                                                                Delete
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />

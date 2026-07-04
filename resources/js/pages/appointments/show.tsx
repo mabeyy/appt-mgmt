@@ -5,7 +5,12 @@ import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency, formatDate, formatDuration, formatTime } from '@/lib/format';
+import {
+    formatCurrency,
+    formatDate,
+    formatDuration,
+    formatTime,
+} from '@/lib/format';
 import { destroy, edit, index } from '@/routes/appointments';
 import { show as showCustomer } from '@/routes/customers';
 import type { Appointment } from '@/types';
@@ -19,13 +24,21 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     );
 }
 
-export default function AppointmentShow({ appointment }: { appointment: Appointment }) {
+export default function AppointmentShow({
+    appointment,
+}: {
+    appointment: Appointment;
+}) {
     return (
         <>
             <Head title={appointment.appointment_number} />
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon-sm" render={<Link href={index()} />}>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        render={<Link href={index()} />}
+                    >
                         <ArrowLeft />
                         <span className="sr-only">Back</span>
                     </Button>
@@ -33,7 +46,10 @@ export default function AppointmentShow({ appointment }: { appointment: Appointm
                         title={appointment.appointment_number}
                         description="Appointment details"
                     >
-                        <Button variant="outline" render={<Link href={edit(appointment.id)} />}>
+                        <Button
+                            variant="outline"
+                            render={<Link href={edit(appointment.id)} />}
+                        >
                             <Pencil /> Edit
                         </Button>
                         <ConfirmDialog
@@ -48,7 +64,8 @@ export default function AppointmentShow({ appointment }: { appointment: Appointm
                             }
                             trigger={
                                 <Button variant="outline">
-                                    <Trash2 className="text-destructive" /> Delete
+                                    <Trash2 className="text-destructive" />{' '}
+                                    Delete
                                 </Button>
                             }
                         />
@@ -67,7 +84,9 @@ export default function AppointmentShow({ appointment }: { appointment: Appointm
                                 value={
                                     appointment.customer ? (
                                         <Link
-                                            href={showCustomer(appointment.customer.id)}
+                                            href={showCustomer(
+                                                appointment.customer.id,
+                                            )}
                                             className="hover:underline"
                                         >
                                             {appointment.customer.full_name}
@@ -77,21 +96,44 @@ export default function AppointmentShow({ appointment }: { appointment: Appointm
                                     )
                                 }
                             />
-                            <Row label="Email" value={appointment.customer?.email ?? '—'} />
-                            <Row label="Phone" value={appointment.customer?.phone ?? '—'} />
-                            <Row label="Service" value={appointment.service?.name ?? '—'} />
+                            <Row
+                                label="Email"
+                                value={appointment.customer?.email ?? '—'}
+                            />
+                            <Row
+                                label="Phone"
+                                value={appointment.customer?.phone ?? '—'}
+                            />
+                            <Row
+                                label="Service"
+                                value={appointment.service?.name ?? '—'}
+                            />
                             <Row
                                 label="Price"
                                 value={
                                     appointment.service
-                                        ? formatCurrency(appointment.service.price)
+                                        ? formatCurrency(
+                                              appointment.service.price,
+                                          )
                                         : '—'
                                 }
                             />
-                            <Row label="Staff" value={appointment.staff?.name ?? 'Unassigned'} />
-                            <Row label="Date" value={formatDate(appointment.appointment_date)} />
-                            <Row label="Time" value={formatTime(appointment.start_time)} />
-                            <Row label="Duration" value={formatDuration(appointment.duration)} />
+                            <Row
+                                label="Staff"
+                                value={appointment.staff?.name ?? 'Unassigned'}
+                            />
+                            <Row
+                                label="Date"
+                                value={formatDate(appointment.appointment_date)}
+                            />
+                            <Row
+                                label="Time"
+                                value={formatTime(appointment.start_time)}
+                            />
+                            <Row
+                                label="Duration"
+                                value={formatDuration(appointment.duration)}
+                            />
                         </CardContent>
                     </Card>
 
@@ -101,7 +143,8 @@ export default function AppointmentShow({ appointment }: { appointment: Appointm
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm whitespace-pre-wrap text-muted-foreground">
-                                {appointment.notes || 'No notes for this appointment.'}
+                                {appointment.notes ||
+                                    'No notes for this appointment.'}
                             </p>
                         </CardContent>
                     </Card>

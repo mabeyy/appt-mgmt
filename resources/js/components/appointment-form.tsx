@@ -19,7 +19,13 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { store, update } from '@/routes/appointments';
-import type { Appointment, Customer, Service, StatusOption, Staff } from '@/types';
+import type {
+    Appointment,
+    Customer,
+    Service,
+    StatusOption,
+    Staff,
+} from '@/types';
 
 type OptionService = Pick<Service, 'id' | 'name' | 'duration' | 'price'>;
 type OptionStaff = Pick<Staff, 'id' | 'name'>;
@@ -40,15 +46,23 @@ export function AppointmentForm({
 }) {
     const isEdit = Boolean(appointment);
     const [customerMode, setCustomerMode] = useState<'existing' | 'new'>(
-        appointment?.customer_id ? 'existing' : customers.length > 0 ? 'existing' : 'new',
+        appointment?.customer_id
+            ? 'existing'
+            : customers.length > 0
+              ? 'existing'
+              : 'new',
     );
 
     const form = useForm({
-        customer_id: appointment?.customer_id ? String(appointment.customer_id) : '',
+        customer_id: appointment?.customer_id
+            ? String(appointment.customer_id)
+            : '',
         customer_name: '',
         customer_email: '',
         customer_phone: '',
-        service_id: appointment?.service_id ? String(appointment.service_id) : '',
+        service_id: appointment?.service_id
+            ? String(appointment.service_id)
+            : '',
         staff_id: appointment?.staff_id ? String(appointment.staff_id) : '',
         appointment_date:
             appointment?.appointment_date?.slice(0, 10) ??
@@ -64,11 +78,17 @@ export function AppointmentForm({
         [services],
     );
     const staffItems = useMemo(
-        () => ({ '': 'Unassigned', ...Object.fromEntries(staff.map((s) => [String(s.id), s.name])) }),
+        () => ({
+            '': 'Unassigned',
+            ...Object.fromEntries(staff.map((s) => [String(s.id), s.name])),
+        }),
         [staff],
     );
     const customerItems = useMemo(
-        () => Object.fromEntries(customers.map((c) => [String(c.id), c.full_name])),
+        () =>
+            Object.fromEntries(
+                customers.map((c) => [String(c.id), c.full_name]),
+            ),
         [customers],
     );
     const statusItems = useMemo(
@@ -80,6 +100,7 @@ export function AppointmentForm({
         const next = value ?? '';
         form.setData('service_id', next);
         const svc = services.find((s) => String(s.id) === next);
+
         if (svc && !isEdit) {
             form.setData('duration', svc.duration);
         }
@@ -89,7 +110,10 @@ export function AppointmentForm({
         e.preventDefault();
         form.transform((data) => ({
             ...data,
-            customer_id: customerMode === 'existing' && data.customer_id ? Number(data.customer_id) : null,
+            customer_id:
+                customerMode === 'existing' && data.customer_id
+                    ? Number(data.customer_id)
+                    : null,
             customer_name: customerMode === 'new' ? data.customer_name : '',
             service_id: data.service_id ? Number(data.service_id) : null,
             staff_id: data.staff_id ? Number(data.staff_id) : null,
@@ -119,7 +143,11 @@ export function AppointmentForm({
                             <Button
                                 type="button"
                                 size="sm"
-                                variant={customerMode === 'existing' ? 'default' : 'outline'}
+                                variant={
+                                    customerMode === 'existing'
+                                        ? 'default'
+                                        : 'outline'
+                                }
                                 onClick={() => setCustomerMode('existing')}
                                 disabled={customers.length === 0}
                             >
@@ -128,7 +156,11 @@ export function AppointmentForm({
                             <Button
                                 type="button"
                                 size="sm"
-                                variant={customerMode === 'new' ? 'default' : 'outline'}
+                                variant={
+                                    customerMode === 'new'
+                                        ? 'default'
+                                        : 'outline'
+                                }
                                 onClick={() => setCustomerMode('new')}
                             >
                                 New customer
@@ -140,7 +172,9 @@ export function AppointmentForm({
                                 <Label>Customer</Label>
                                 <Select
                                     value={form.data.customer_id}
-                                    onValueChange={(v) => form.setData('customer_id', String(v))}
+                                    onValueChange={(v) =>
+                                        form.setData('customer_id', String(v))
+                                    }
                                     items={customerItems}
                                 >
                                     <SelectTrigger className="w-full">
@@ -148,7 +182,10 @@ export function AppointmentForm({
                                     </SelectTrigger>
                                     <SelectContent>
                                         {customers.map((c) => (
-                                            <SelectItem key={c.id} value={String(c.id)}>
+                                            <SelectItem
+                                                key={c.id}
+                                                value={String(c.id)}
+                                            >
                                                 {c.full_name}
                                             </SelectItem>
                                         ))}
@@ -159,32 +196,59 @@ export function AppointmentForm({
                         ) : (
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2 sm:col-span-2">
-                                    <Label htmlFor="customer_name">Full name</Label>
+                                    <Label htmlFor="customer_name">
+                                        Full name
+                                    </Label>
                                     <Input
                                         id="customer_name"
                                         value={form.data.customer_name}
-                                        onChange={(e) => form.setData('customer_name', e.target.value)}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'customer_name',
+                                                e.target.value,
+                                            )
+                                        }
                                     />
-                                    <InputError message={form.errors.customer_name} />
+                                    <InputError
+                                        message={form.errors.customer_name}
+                                    />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="customer_email">Email</Label>
+                                    <Label htmlFor="customer_email">
+                                        Email
+                                    </Label>
                                     <Input
                                         id="customer_email"
                                         type="email"
                                         value={form.data.customer_email}
-                                        onChange={(e) => form.setData('customer_email', e.target.value)}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'customer_email',
+                                                e.target.value,
+                                            )
+                                        }
                                     />
-                                    <InputError message={form.errors.customer_email} />
+                                    <InputError
+                                        message={form.errors.customer_email}
+                                    />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="customer_phone">Phone</Label>
+                                    <Label htmlFor="customer_phone">
+                                        Phone
+                                    </Label>
                                     <Input
                                         id="customer_phone"
                                         value={form.data.customer_phone}
-                                        onChange={(e) => form.setData('customer_phone', e.target.value)}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'customer_phone',
+                                                e.target.value,
+                                            )
+                                        }
                                     />
-                                    <InputError message={form.errors.customer_phone} />
+                                    <InputError
+                                        message={form.errors.customer_phone}
+                                    />
                                 </div>
                             </div>
                         )}
@@ -209,7 +273,10 @@ export function AppointmentForm({
                                 </SelectTrigger>
                                 <SelectContent>
                                     {services.map((s) => (
-                                        <SelectItem key={s.id} value={String(s.id)}>
+                                        <SelectItem
+                                            key={s.id}
+                                            value={String(s.id)}
+                                        >
                                             {s.name}
                                         </SelectItem>
                                     ))}
@@ -221,7 +288,9 @@ export function AppointmentForm({
                             <Label>Staff (optional)</Label>
                             <Select
                                 value={form.data.staff_id}
-                                onValueChange={(v) => form.setData('staff_id', String(v))}
+                                onValueChange={(v) =>
+                                    form.setData('staff_id', String(v))
+                                }
                                 items={staffItems}
                             >
                                 <SelectTrigger className="w-full">
@@ -230,7 +299,10 @@ export function AppointmentForm({
                                 <SelectContent>
                                     <SelectItem value="">Unassigned</SelectItem>
                                     {staff.map((s) => (
-                                        <SelectItem key={s.id} value={String(s.id)}>
+                                        <SelectItem
+                                            key={s.id}
+                                            value={String(s.id)}
+                                        >
                                             {s.name}
                                         </SelectItem>
                                     ))}
@@ -244,9 +316,16 @@ export function AppointmentForm({
                                 id="appointment_date"
                                 type="date"
                                 value={form.data.appointment_date}
-                                onChange={(e) => form.setData('appointment_date', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'appointment_date',
+                                        e.target.value,
+                                    )
+                                }
                             />
-                            <InputError message={form.errors.appointment_date} />
+                            <InputError
+                                message={form.errors.appointment_date}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="start_time">Time</Label>
@@ -254,7 +333,9 @@ export function AppointmentForm({
                                 id="start_time"
                                 type="time"
                                 value={form.data.start_time}
-                                onChange={(e) => form.setData('start_time', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('start_time', e.target.value)
+                                }
                             />
                             <InputError message={form.errors.start_time} />
                         </div>
@@ -265,7 +346,12 @@ export function AppointmentForm({
                                 type="number"
                                 min={5}
                                 value={form.data.duration}
-                                onChange={(e) => form.setData('duration', Number(e.target.value))}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'duration',
+                                        Number(e.target.value),
+                                    )
+                                }
                             />
                             <InputError message={form.errors.duration} />
                         </div>
@@ -284,7 +370,12 @@ export function AppointmentForm({
                             <Label>Status</Label>
                             <Select
                                 value={form.data.status}
-                                onValueChange={(v) => form.setData('status', String(v) as typeof form.data.status)}
+                                onValueChange={(v) =>
+                                    form.setData(
+                                        'status',
+                                        String(v) as typeof form.data.status,
+                                    )
+                                }
                                 items={statusItems}
                             >
                                 <SelectTrigger className="w-full">
@@ -292,7 +383,10 @@ export function AppointmentForm({
                                 </SelectTrigger>
                                 <SelectContent>
                                     {statuses.map((s) => (
-                                        <SelectItem key={s.value} value={s.value}>
+                                        <SelectItem
+                                            key={s.value}
+                                            value={s.value}
+                                        >
                                             {s.label}
                                         </SelectItem>
                                     ))}
@@ -305,14 +399,20 @@ export function AppointmentForm({
                             <textarea
                                 id="notes"
                                 value={form.data.notes}
-                                onChange={(e) => form.setData('notes', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('notes', e.target.value)
+                                }
                                 rows={5}
                                 className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                                 placeholder="Optional notes..."
                             />
                             <InputError message={form.errors.notes} />
                         </div>
-                        <Button type="submit" className="w-full" disabled={form.processing}>
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={form.processing}
+                        >
                             {isEdit ? 'Save changes' : 'Create appointment'}
                         </Button>
                     </CardContent>

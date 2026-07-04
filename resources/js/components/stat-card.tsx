@@ -29,8 +29,12 @@ export function StatCard({
                     <Icon className={cn('size-5', accent)} />
                 </div>
                 <div className="min-w-0">
-                    <p className="truncate text-sm text-muted-foreground">{label}</p>
-                    <p className="text-2xl font-semibold tracking-tight">{value}</p>
+                    <p className="truncate text-sm text-muted-foreground">
+                        {label}
+                    </p>
+                    <p className="text-2xl font-semibold tracking-tight">
+                        {value}
+                    </p>
                 </div>
             </CardContent>
         </Card>

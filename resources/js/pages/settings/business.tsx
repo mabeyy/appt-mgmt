@@ -40,7 +40,11 @@ const TIMEZONES = [
     'Australia/Sydney',
 ];
 
-export default function BusinessSettings({ settings }: { settings: BusinessSettings }) {
+export default function BusinessSettings({
+    settings,
+}: {
+    settings: BusinessSettings;
+}) {
     const timezones = TIMEZONES.includes(settings.timezone)
         ? TIMEZONES
         : [settings.timezone, ...TIMEZONES];
@@ -93,7 +97,12 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                             <Input
                                 id="business_name"
                                 value={form.data.business_name}
-                                onChange={(e) => form.setData('business_name', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_name',
+                                        e.target.value,
+                                    )
+                                }
                             />
                             <InputError message={form.errors.business_name} />
                         </div>
@@ -103,7 +112,12 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                                 id="business_email"
                                 type="email"
                                 value={form.data.business_email}
-                                onChange={(e) => form.setData('business_email', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_email',
+                                        e.target.value,
+                                    )
+                                }
                             />
                             <InputError message={form.errors.business_email} />
                         </div>
@@ -112,7 +126,12 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                             <Input
                                 id="business_phone"
                                 value={form.data.business_phone}
-                                onChange={(e) => form.setData('business_phone', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_phone',
+                                        e.target.value,
+                                    )
+                                }
                             />
                             <InputError message={form.errors.business_phone} />
                         </div>
@@ -121,16 +140,27 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                             <Input
                                 id="business_address"
                                 value={form.data.business_address}
-                                onChange={(e) => form.setData('business_address', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_address',
+                                        e.target.value,
+                                    )
+                                }
                             />
-                            <InputError message={form.errors.business_address} />
+                            <InputError
+                                message={form.errors.business_address}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="timezone">Time zone</Label>
                             <Select
                                 value={form.data.timezone}
-                                onValueChange={(v) => form.setData('timezone', String(v))}
-                                items={Object.fromEntries(timezones.map((t) => [t, t]))}
+                                onValueChange={(v) =>
+                                    form.setData('timezone', String(v))
+                                }
+                                items={Object.fromEntries(
+                                    timezones.map((t) => [t, t]),
+                                )}
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue />
@@ -159,7 +189,12 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                                     id="logo"
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => form.setData('logo', e.target.files?.[0] ?? null)}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'logo',
+                                            e.target.files?.[0] ?? null,
+                                        )
+                                    }
                                 />
                             </div>
                             <InputError message={form.errors.logo} />
@@ -179,7 +214,10 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                         <Label>Working days</Label>
                         <div className="flex flex-wrap gap-1.5">
                             {DAYS.map((day) => {
-                                const active = form.data.working_days.includes(day.key);
+                                const active = form.data.working_days.includes(
+                                    day.key,
+                                );
+
                                 return (
                                     <button
                                         key={day.key}
@@ -201,64 +239,112 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="grid gap-2">
-                            <Label htmlFor="business_hours_start">Business hours start</Label>
+                            <Label htmlFor="business_hours_start">
+                                Business hours start
+                            </Label>
                             <Input
                                 id="business_hours_start"
                                 type="time"
                                 value={form.data.business_hours_start}
-                                onChange={(e) => form.setData('business_hours_start', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_hours_start',
+                                        e.target.value,
+                                    )
+                                }
                             />
-                            <InputError message={form.errors.business_hours_start} />
+                            <InputError
+                                message={form.errors.business_hours_start}
+                            />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="business_hours_end">Business hours end</Label>
+                            <Label htmlFor="business_hours_end">
+                                Business hours end
+                            </Label>
                             <Input
                                 id="business_hours_end"
                                 type="time"
                                 value={form.data.business_hours_end}
-                                onChange={(e) => form.setData('business_hours_end', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_hours_end',
+                                        e.target.value,
+                                    )
+                                }
                             />
-                            <InputError message={form.errors.business_hours_end} />
+                            <InputError
+                                message={form.errors.business_hours_end}
+                            />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="appointment_interval">Appointment interval (min)</Label>
+                            <Label htmlFor="appointment_interval">
+                                Appointment interval (min)
+                            </Label>
                             <Input
                                 id="appointment_interval"
                                 type="number"
                                 min={5}
                                 value={form.data.appointment_interval}
-                                onChange={(e) => form.setData('appointment_interval', Number(e.target.value))}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'appointment_interval',
+                                        Number(e.target.value),
+                                    )
+                                }
                             />
-                            <InputError message={form.errors.appointment_interval} />
+                            <InputError
+                                message={form.errors.appointment_interval}
+                            />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="buffer_time">Buffer between appointments (min)</Label>
+                            <Label htmlFor="buffer_time">
+                                Buffer between appointments (min)
+                            </Label>
                             <Input
                                 id="buffer_time"
                                 type="number"
                                 min={0}
                                 value={form.data.buffer_time}
-                                onChange={(e) => form.setData('buffer_time', Number(e.target.value))}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'buffer_time',
+                                        Number(e.target.value),
+                                    )
+                                }
                             />
                             <InputError message={form.errors.buffer_time} />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="max_appointments_per_day">Max appointments per day</Label>
+                            <Label htmlFor="max_appointments_per_day">
+                                Max appointments per day
+                            </Label>
                             <Input
                                 id="max_appointments_per_day"
                                 type="number"
                                 min={1}
                                 value={form.data.max_appointments_per_day}
-                                onChange={(e) => form.setData('max_appointments_per_day', Number(e.target.value))}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'max_appointments_per_day',
+                                        Number(e.target.value),
+                                    )
+                                }
                             />
-                            <InputError message={form.errors.max_appointments_per_day} />
+                            <InputError
+                                message={form.errors.max_appointments_per_day}
+                            />
                         </div>
                     </div>
 
                     <label className="flex items-center gap-2.5">
                         <Checkbox
                             checked={form.data.manual_approval}
-                            onCheckedChange={(checked) => form.setData('manual_approval', checked === true)}
+                            onCheckedChange={(checked) =>
+                                form.setData(
+                                    'manual_approval',
+                                    checked === true,
+                                )
+                            }
                         />
                         <span className="text-sm">
                             Require manual approval for new appointments
@@ -271,7 +357,9 @@ export default function BusinessSettings({ settings }: { settings: BusinessSetti
                         Save settings
                     </Button>
                     {form.recentlySuccessful && (
-                        <span className="text-sm text-muted-foreground">Saved.</span>
+                        <span className="text-sm text-muted-foreground">
+                            Saved.
+                        </span>
                     )}
                 </div>
             </form>

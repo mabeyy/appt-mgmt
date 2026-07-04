@@ -14,8 +14,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { events as eventsRoute, reschedule } from '@/routes/calendar';
 import { show } from '@/routes/appointments';
+import { events as eventsRoute, reschedule } from '@/routes/calendar';
 import { index } from '@/routes/calendar';
 import type { Service, Staff } from '@/types';
 
@@ -44,9 +44,18 @@ export default function CalendarPage({ services, staff }: Props) {
         success: (events: EventInput[]) => void,
         failure: (error: Error) => void,
     ) => {
-        const params = new URLSearchParams({ start: info.startStr, end: info.endStr });
-        if (serviceId !== 'all') params.set('service_id', serviceId);
-        if (staffId !== 'all') params.set('staff_id', staffId);
+        const params = new URLSearchParams({
+            start: info.startStr,
+            end: info.endStr,
+        });
+
+        if (serviceId !== 'all') {
+            params.set('service_id', serviceId);
+        }
+
+        if (staffId !== 'all') {
+            params.set('staff_id', staffId);
+        }
 
         fetch(`${eventsRoute().url}?${params.toString()}`, {
             headers: { Accept: 'application/json' },
@@ -61,14 +70,22 @@ export default function CalendarPage({ services, staff }: Props) {
         <>
             <Head title="Calendar" />
             <div className="flex flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Calendar" description="Drag an appointment to reschedule it.">
+                <PageHeader
+                    title="Calendar"
+                    description="Drag an appointment to reschedule it."
+                >
                     <Select
                         value={serviceId}
                         onValueChange={(v) => {
                             setServiceId(String(v));
                             requestAnimationFrame(refetch);
                         }}
-                        items={{ all: 'All services', ...Object.fromEntries(services.map((s) => [String(s.id), s.name])) }}
+                        items={{
+                            all: 'All services',
+                            ...Object.fromEntries(
+                                services.map((s) => [String(s.id), s.name]),
+                            ),
+                        }}
                     >
                         <SelectTrigger className="w-40">
                             <SelectValue />
@@ -88,7 +105,12 @@ export default function CalendarPage({ services, staff }: Props) {
                             setStaffId(String(v));
                             requestAnimationFrame(refetch);
                         }}
-                        items={{ all: 'All staff', ...Object.fromEntries(staff.map((s) => [String(s.id), s.name])) }}
+                        items={{
+                            all: 'All staff',
+                            ...Object.fromEntries(
+                                staff.map((s) => [String(s.id), s.name]),
+                            ),
+                        }}
                     >
                         <SelectTrigger className="w-40">
                             <SelectValue />
@@ -106,8 +128,14 @@ export default function CalendarPage({ services, staff }: Props) {
 
                 <div className="flex flex-wrap items-center gap-4">
                     {LEGEND.map((l) => (
-                        <span key={l.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <span className="size-2.5 rounded-full" style={{ backgroundColor: l.color }} />
+                        <span
+                            key={l.label}
+                            className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                        >
+                            <span
+                                className="size-2.5 rounded-full"
+                                style={{ backgroundColor: l.color }}
+                            />
                             {l.label}
                         </span>
                     ))}
@@ -117,7 +145,11 @@ export default function CalendarPage({ services, staff }: Props) {
                     <CardContent className="p-3 md:p-4">
                         <FullCalendar
                             ref={calendarRef}
-                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                            plugins={[
+                                dayGridPlugin,
+                                timeGridPlugin,
+                                interactionPlugin,
+                            ]}
                             initialView="dayGridMonth"
                             headerToolbar={{
                                 left: 'prev,next today',
@@ -132,11 +164,15 @@ export default function CalendarPage({ services, staff }: Props) {
                             events={fetchEvents}
                             eventDrop={(arg) => {
                                 const start = arg.event.start;
+
                                 if (!start) {
                                     arg.revert();
+
                                     return;
                                 }
-                                const pad = (n: number) => String(n).padStart(2, '0');
+
+                                const pad = (n: number) =>
+                                    String(n).padStart(2, '0');
                                 const appointment_date = `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
                                 const start_time = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
                                 router.patch(

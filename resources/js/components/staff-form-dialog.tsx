@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
-import { type ReactElement, useState } from 'react';
+import { useState } from 'react';
+import type { ReactElement } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -43,7 +44,13 @@ export function StaffFormDialog({
         email: staff?.email ?? '',
         phone: staff?.phone ?? '',
         position: staff?.position ?? '',
-        working_days: staff?.working_days ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        working_days: staff?.working_days ?? [
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+        ],
         working_start: staff?.working_start?.slice(0, 5) ?? '09:00',
         working_end: staff?.working_end?.slice(0, 5) ?? '17:00',
         is_active: staff?.is_active ?? true,
@@ -64,9 +71,13 @@ export function StaffFormDialog({
             preserveScroll: true,
             onSuccess: () => {
                 setOpen(false);
-                if (!isEdit) form.reset();
+
+                if (!isEdit) {
+                    form.reset();
+                }
             },
         };
+
         if (isEdit && staff) {
             form.put(update(staff.id).url, options);
         } else {
@@ -86,7 +97,9 @@ export function StaffFormDialog({
             <DialogContent className="sm:max-w-lg">
                 <form onSubmit={submit}>
                     <DialogHeader>
-                        <DialogTitle>{isEdit ? 'Edit staff member' : 'New staff member'}</DialogTitle>
+                        <DialogTitle>
+                            {isEdit ? 'Edit staff member' : 'New staff member'}
+                        </DialogTitle>
                         <DialogDescription>
                             Staff can be assigned to appointments.
                         </DialogDescription>
@@ -98,7 +111,9 @@ export function StaffFormDialog({
                             <Input
                                 id="name"
                                 value={form.data.name}
-                                onChange={(e) => form.setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('name', e.target.value)
+                                }
                                 autoFocus
                             />
                             <InputError message={form.errors.name} />
@@ -111,7 +126,9 @@ export function StaffFormDialog({
                                     id="email"
                                     type="email"
                                     value={form.data.email}
-                                    onChange={(e) => form.setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('email', e.target.value)
+                                    }
                                 />
                                 <InputError message={form.errors.email} />
                             </div>
@@ -120,7 +137,9 @@ export function StaffFormDialog({
                                 <Input
                                     id="phone"
                                     value={form.data.phone}
-                                    onChange={(e) => form.setData('phone', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('phone', e.target.value)
+                                    }
                                 />
                                 <InputError message={form.errors.phone} />
                             </div>
@@ -131,7 +150,9 @@ export function StaffFormDialog({
                             <Input
                                 id="position"
                                 value={form.data.position}
-                                onChange={(e) => form.setData('position', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('position', e.target.value)
+                                }
                                 placeholder="e.g. Senior Stylist"
                             />
                             <InputError message={form.errors.position} />
@@ -141,7 +162,11 @@ export function StaffFormDialog({
                             <Label>Working days</Label>
                             <div className="flex flex-wrap gap-1.5">
                                 {DAYS.map((day) => {
-                                    const active = form.data.working_days.includes(day.key);
+                                    const active =
+                                        form.data.working_days.includes(
+                                            day.key,
+                                        );
+
                                     return (
                                         <button
                                             key={day.key}
@@ -163,14 +188,23 @@ export function StaffFormDialog({
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="working_start">Working start</Label>
+                                <Label htmlFor="working_start">
+                                    Working start
+                                </Label>
                                 <Input
                                     id="working_start"
                                     type="time"
                                     value={form.data.working_start}
-                                    onChange={(e) => form.setData('working_start', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'working_start',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
-                                <InputError message={form.errors.working_start} />
+                                <InputError
+                                    message={form.errors.working_start}
+                                />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="working_end">Working end</Label>
@@ -178,7 +212,12 @@ export function StaffFormDialog({
                                     id="working_end"
                                     type="time"
                                     value={form.data.working_end}
-                                    onChange={(e) => form.setData('working_end', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'working_end',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                                 <InputError message={form.errors.working_end} />
                             </div>
@@ -196,7 +235,11 @@ export function StaffFormDialog({
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                        >
                             Cancel
                         </Button>
                         <Button type="submit" disabled={form.processing}>

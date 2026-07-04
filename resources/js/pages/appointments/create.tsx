@@ -13,17 +13,29 @@ type Props = {
     statuses: StatusOption[];
 };
 
-export default function AppointmentCreate({ services, staff, customers, statuses }: Props) {
+export default function AppointmentCreate({
+    services,
+    staff,
+    customers,
+    statuses,
+}: Props) {
     return (
         <>
             <Head title="New appointment" />
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon-sm" render={<Link href={index()} />}>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        render={<Link href={index()} />}
+                    >
                         <ArrowLeft />
                         <span className="sr-only">Back</span>
                     </Button>
-                    <PageHeader title="New Appointment" description="Book a new appointment." />
+                    <PageHeader
+                        title="New Appointment"
+                        description="Book a new appointment."
+                    />
                 </div>
                 <AppointmentForm
                     services={services}

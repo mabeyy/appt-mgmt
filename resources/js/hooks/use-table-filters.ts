@@ -3,11 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 
 function clean(params: Record<string, unknown>): Record<string, string> {
     const out: Record<string, string> = {};
+
     for (const [key, value] of Object.entries(params)) {
-        if (value !== '' && value !== null && value !== undefined && value !== 'all') {
+        if (
+            value !== '' &&
+            value !== null &&
+            value !== undefined &&
+            value !== 'all'
+        ) {
             out[key] = String(value);
         }
     }
+
     return out;
 }
 
@@ -26,8 +33,10 @@ export function useTableFilters<T extends Record<string, string>>(
     useEffect(() => {
         if (first.current) {
             first.current = false;
+
             return;
         }
+
         const timer = setTimeout(() => {
             router.get(url, clean(values), {
                 preserveState: true,
@@ -35,6 +44,7 @@ export function useTableFilters<T extends Record<string, string>>(
                 replace: true,
             });
         }, debounce);
+
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [values, url]);

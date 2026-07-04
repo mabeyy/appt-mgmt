@@ -1,9 +1,5 @@
 export type AppointmentStatusValue =
-    | 'pending'
-    | 'confirmed'
-    | 'completed'
-    | 'cancelled'
-    | 'no_show';
+    'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
 
 export type StatusOption = {
     value: AppointmentStatusValue;

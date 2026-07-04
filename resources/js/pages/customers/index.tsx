@@ -34,7 +34,10 @@ export default function CustomersIndex({ customers, filters }: Props) {
         <>
             <Head title="Customers" />
             <div className="flex flex-col gap-6 p-4 md:p-6">
-                <PageHeader title="Customers" description="Manage your customer records.">
+                <PageHeader
+                    title="Customers"
+                    description="Manage your customer records."
+                >
                     <CustomerFormDialog
                         trigger={
                             <Button>
@@ -79,7 +82,9 @@ export default function CustomersIndex({ customers, filters }: Props) {
                                     <TableHead>Email</TableHead>
                                     <TableHead>Phone</TableHead>
                                     <TableHead>Appointments</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="text-right">
+                                        Actions
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -93,25 +98,44 @@ export default function CustomersIndex({ customers, filters }: Props) {
                                                 {customer.full_name}
                                             </Link>
                                         </TableCell>
-                                        <TableCell>{customer.email ?? '—'}</TableCell>
-                                        <TableCell>{customer.phone ?? '—'}</TableCell>
-                                        <TableCell>{customer.appointments_count ?? 0}</TableCell>
+                                        <TableCell>
+                                            {customer.email ?? '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {customer.phone ?? '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {customer.appointments_count ?? 0}
+                                        </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon-sm"
-                                                    render={<Link href={show(customer.id)} />}
+                                                    render={
+                                                        <Link
+                                                            href={show(
+                                                                customer.id,
+                                                            )}
+                                                        />
+                                                    }
                                                 >
                                                     <Eye />
-                                                    <span className="sr-only">View</span>
+                                                    <span className="sr-only">
+                                                        View
+                                                    </span>
                                                 </Button>
                                                 <CustomerFormDialog
                                                     customer={customer}
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Pencil />
-                                                            <span className="sr-only">Edit</span>
+                                                            <span className="sr-only">
+                                                                Edit
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />
@@ -121,14 +145,23 @@ export default function CustomersIndex({ customers, filters }: Props) {
                                                     confirmLabel="Delete"
                                                     destructive
                                                     onConfirm={() =>
-                                                        router.delete(destroy(customer.id).url, {
-                                                            preserveScroll: true,
-                                                        })
+                                                        router.delete(
+                                                            destroy(customer.id)
+                                                                .url,
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
                                                     }
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Trash2 className="text-destructive" />
-                                                            <span className="sr-only">Delete</span>
+                                                            <span className="sr-only">
+                                                                Delete
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />

@@ -4,7 +4,13 @@ import { AppointmentForm } from '@/components/appointment-form';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/appointments';
-import type { Appointment, Customer, Service, StatusOption, Staff } from '@/types';
+import type {
+    Appointment,
+    Customer,
+    Service,
+    StatusOption,
+    Staff,
+} from '@/types';
 
 type Props = {
     appointment: Appointment;
@@ -26,7 +32,11 @@ export default function AppointmentEdit({
             <Head title={`Edit ${appointment.appointment_number}`} />
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon-sm" render={<Link href={index()} />}>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        render={<Link href={index()} />}
+                    >
                         <ArrowLeft />
                         <span className="sr-only">Back</span>
                     </Button>

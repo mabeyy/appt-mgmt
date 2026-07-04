@@ -1,3 +1,4 @@
+import { ChartSpline } from 'lucide-react';
 import {
     Bar,
     BarChart,
@@ -13,7 +14,6 @@ import {
     YAxis,
 } from 'recharts';
 import { EmptyState } from '@/components/empty-state';
-import { ChartSpline } from 'lucide-react';
 
 const AXIS = 'var(--color-muted-foreground)';
 const GRID = 'var(--color-border)';
@@ -29,7 +29,11 @@ const tooltipStyle = {
 
 function ChartEmpty({ label }: { label: string }) {
     return (
-        <EmptyState icon={ChartSpline} title="No data yet" description={label} />
+        <EmptyState
+            icon={ChartSpline}
+            title="No data yet"
+            description={label}
+        />
     );
 }
 
@@ -45,13 +49,22 @@ export function AppLineChart({
     height?: number;
 }) {
     if (!data.some((d) => Number(d[yKey]) > 0)) {
-        return <ChartEmpty label="Trends will appear once you have appointments." />;
+        return (
+            <ChartEmpty label="Trends will appear once you have appointments." />
+        );
     }
 
     return (
         <ResponsiveContainer width="100%" height={height}>
-            <LineChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+            <LineChart
+                data={data}
+                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+            >
+                <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={GRID}
+                    vertical={false}
+                />
                 <XAxis
                     dataKey={xKey}
                     tick={{ fill: AXIS, fontSize: 11 }}
@@ -64,7 +77,10 @@ export function AppLineChart({
                     axisLine={false}
                     allowDecimals={false}
                 />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: GRID }} />
+                <Tooltip
+                    contentStyle={tooltipStyle}
+                    cursor={{ stroke: GRID }}
+                />
                 <Line
                     type="monotone"
                     dataKey={yKey}
@@ -92,13 +108,22 @@ export function AppBarChart({
     color?: string;
 }) {
     if (data.length === 0) {
-        return <ChartEmpty label="Data will appear once you have appointments." />;
+        return (
+            <ChartEmpty label="Data will appear once you have appointments." />
+        );
     }
 
     return (
         <ResponsiveContainer width="100%" height={height}>
-            <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+            <BarChart
+                data={data}
+                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+            >
+                <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={GRID}
+                    vertical={false}
+                />
                 <XAxis
                     dataKey={xKey}
                     tick={{ fill: AXIS, fontSize: 11 }}
@@ -111,8 +136,16 @@ export function AppBarChart({
                     axisLine={false}
                     allowDecimals={false}
                 />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-muted)' }} />
-                <Bar dataKey={yKey} fill={color} radius={[6, 6, 0, 0]} maxBarSize={48} />
+                <Tooltip
+                    contentStyle={tooltipStyle}
+                    cursor={{ fill: 'var(--color-muted)' }}
+                />
+                <Bar
+                    dataKey={yKey}
+                    fill={color}
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={48}
+                />
             </BarChart>
         </ResponsiveContainer>
     );
@@ -126,12 +159,18 @@ export function AppPieChart({
     height?: number;
 }) {
     if (!data.some((d) => d.value > 0)) {
-        return <ChartEmpty label="Status breakdown will appear once you have appointments." />;
+        return (
+            <ChartEmpty label="Status breakdown will appear once you have appointments." />
+        );
     }
 
     return (
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-            <ResponsiveContainer width="100%" height={height} className="max-w-[240px]">
+            <ResponsiveContainer
+                width="100%"
+                height={height}
+                className="max-w-[240px]"
+            >
                 <PieChart>
                     <Pie
                         data={data}
@@ -151,13 +190,18 @@ export function AppPieChart({
             </ResponsiveContainer>
             <ul className="grid w-full gap-2 text-sm sm:max-w-[180px]">
                 {data.map((entry) => (
-                    <li key={entry.status} className="flex items-center justify-between gap-2">
+                    <li
+                        key={entry.status}
+                        className="flex items-center justify-between gap-2"
+                    >
                         <span className="flex items-center gap-2">
                             <span
                                 className="size-2.5 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-muted-foreground">{entry.status}</span>
+                            <span className="text-muted-foreground">
+                                {entry.status}
+                            </span>
                         </span>
                         <span className="font-medium">{entry.value}</span>
                     </li>

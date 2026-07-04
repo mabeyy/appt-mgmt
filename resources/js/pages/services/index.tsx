@@ -31,7 +31,12 @@ import type { Paginated, Service } from '@/types';
 
 type Props = {
     services: Paginated<Service>;
-    filters: { search: string; status: string; sort: string; direction: string };
+    filters: {
+        search: string;
+        status: string;
+        sort: string;
+        direction: string;
+    };
 };
 
 export default function ServicesIndex({ services, filters }: Props) {
@@ -70,7 +75,11 @@ export default function ServicesIndex({ services, filters }: Props) {
                     <Select
                         value={values.status}
                         onValueChange={(v) => setValue('status', String(v))}
-                        items={{ all: 'All statuses', active: 'Active', inactive: 'Inactive' }}
+                        items={{
+                            all: 'All statuses',
+                            active: 'Active',
+                            inactive: 'Inactive',
+                        }}
                     >
                         <SelectTrigger className="w-40">
                             <SelectValue />
@@ -108,27 +117,41 @@ export default function ServicesIndex({ services, filters }: Props) {
                                     <TableHead>Duration</TableHead>
                                     <TableHead>Price</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead className="text-right">
+                                        Actions
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {services.data.map((service) => (
                                     <TableRow key={service.id}>
                                         <TableCell>
-                                            <div className="font-medium">{service.name}</div>
+                                            <div className="font-medium">
+                                                {service.name}
+                                            </div>
                                             {service.description && (
                                                 <div className="max-w-xs truncate text-xs text-muted-foreground">
                                                     {service.description}
                                                 </div>
                                             )}
                                         </TableCell>
-                                        <TableCell>{formatDuration(service.duration)}</TableCell>
-                                        <TableCell>{formatCurrency(service.price)}</TableCell>
+                                        <TableCell>
+                                            {formatDuration(service.duration)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatCurrency(service.price)}
+                                        </TableCell>
                                         <TableCell>
                                             <Badge
-                                                variant={service.is_active ? 'default' : 'secondary'}
+                                                variant={
+                                                    service.is_active
+                                                        ? 'default'
+                                                        : 'secondary'
+                                                }
                                             >
-                                                {service.is_active ? 'Active' : 'Inactive'}
+                                                {service.is_active
+                                                    ? 'Active'
+                                                    : 'Inactive'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
@@ -136,9 +159,14 @@ export default function ServicesIndex({ services, filters }: Props) {
                                                 <ServiceFormDialog
                                                     service={service}
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Pencil />
-                                                            <span className="sr-only">Edit</span>
+                                                            <span className="sr-only">
+                                                                Edit
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />
@@ -148,14 +176,23 @@ export default function ServicesIndex({ services, filters }: Props) {
                                                     confirmLabel="Delete"
                                                     destructive
                                                     onConfirm={() =>
-                                                        router.delete(destroy(service.id).url, {
-                                                            preserveScroll: true,
-                                                        })
+                                                        router.delete(
+                                                            destroy(service.id)
+                                                                .url,
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
                                                     }
                                                     trigger={
-                                                        <Button variant="ghost" size="icon-sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                        >
                                                             <Trash2 className="text-destructive" />
-                                                            <span className="sr-only">Delete</span>
+                                                            <span className="sr-only">
+                                                                Delete
+                                                            </span>
                                                         </Button>
                                                     }
                                                 />
