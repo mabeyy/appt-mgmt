@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Pencil, Plus, Sparkles } from 'lucide-react';
 import { ServiceFormDialog } from '@/components/services/service-form-dialog';
 import { DataPagination } from '@/components/shared/data-pagination';
@@ -10,6 +10,7 @@ import { StatusFilterSelect } from '@/components/shared/status-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -20,11 +21,12 @@ import {
 } from '@/components/ui/table';
 import { useTableFilters } from '@/hooks/use-table-filters';
 import { formatCurrency, formatDuration } from '@/lib/format';
-import { destroy, index } from '@/routes/services';
-import type { Paginated, Service } from '@/types';
+import { destroy, index, toggle } from '@/routes/services';
+import type { Paginated, Service, ServiceGroup } from '@/types';
 
 type Props = {
     services: Paginated<Service>;
+    groups: ServiceGroup[];
     filters: {
         search: string;
         status: string;
@@ -33,7 +35,7 @@ type Props = {
     };
 };
 
-export default function ServicesIndex({ services, filters }: Props) {
+export default function ServicesIndex({ services, groups, filters }: Props) {
     const { values, setValue } = useTableFilters(index().url, {
         search: filters.search ?? '',
         status: filters.status || 'all',
@@ -48,6 +50,7 @@ export default function ServicesIndex({ services, filters }: Props) {
                     description="Manage the services customers can book."
                 >
                     <ServiceFormDialog
+                        groups={groups}
                         trigger={
                             <Button>
                                 <Plus /> Add Service
@@ -78,6 +81,7 @@ export default function ServicesIndex({ services, filters }: Props) {
                                 description="Create your first service to start taking appointments."
                             >
                                 <ServiceFormDialog
+                                    groups={groups}
                                     trigger={
                                         <Button>
                                             <Plus /> Add Service
@@ -91,6 +95,7 @@ export default function ServicesIndex({ services, filters }: Props) {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
+                                    <TableHead>Group</TableHead>
                                     <TableHead>Duration</TableHead>
                                     <TableHead>Price</TableHead>
                                     <TableHead>Status</TableHead>
@@ -113,28 +118,54 @@ export default function ServicesIndex({ services, filters }: Props) {
                                             )}
                                         </TableCell>
                                         <TableCell>
+                                            {service.group ? (
+                                                <Badge variant="outline">
+                                                    {service.group.name}
+                                                </Badge>
+                                            ) : (
+                                                <span className="text-muted-foreground">
+                                                    —
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
                                             {formatDuration(service.duration)}
                                         </TableCell>
                                         <TableCell>
                                             {formatCurrency(service.price)}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    service.is_active
-                                                        ? 'default'
-                                                        : 'secondary'
-                                                }
-                                            >
-                                                {service.is_active
-                                                    ? 'Active'
-                                                    : 'Inactive'}
-                                            </Badge>
+                                            <label className="flex cursor-pointer items-center gap-2">
+                                                <Switch
+                                                    checked={service.is_active}
+                                                    onCheckedChange={() =>
+                                                        router.patch(
+                                                            toggle(service.id)
+                                                                .url,
+                                                            {},
+                                                            {
+                                                                preserveScroll: true,
+                                                                preserveState: true,
+                                                                only: [
+                                                                    'services',
+                                                                ],
+                                                            },
+                                                        )
+                                                    }
+                                                    aria-label={`Toggle ${service.name}`}
+                                                />
+                                                <span className="inline-block w-16 text-sm text-muted-foreground">
+                                                    {service.is_active
+                                                        ? 'Active'
+                                                        : 'Inactive'}
+                                                </span>
+                                            </label>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 <ServiceFormDialog
                                                     service={service}
+                                                    groups={groups}
                                                     trigger={
                                                         <Button
                                                             variant="ghost"

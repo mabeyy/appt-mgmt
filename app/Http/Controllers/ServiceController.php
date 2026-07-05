@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequest;
 use App\Models\Service;
+use App\Models\ServiceGroup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,6 +23,7 @@ class ServiceController extends Controller
         }
 
         $services = Service::query()
+            ->with('group:id,name')
             ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
             ->when($request->filled('status'), function ($q) use ($request) {
                 $q->where('is_active', $request->string('status')->toString() === 'active');
@@ -32,6 +34,7 @@ class ServiceController extends Controller
 
         return Inertia::render('services/index', [
             'services' => $services,
+            'groups' => ServiceGroup::orderBy('name')->get(['id', 'name']),
             'filters' => [
                 'search' => $search,
                 'status' => $request->string('status')->toString(),
@@ -43,16 +46,42 @@ class ServiceController extends Controller
 
     public function store(ServiceRequest $request): RedirectResponse
     {
-        Service::create($request->validated());
+        Service::create($this->withGroup($request->validated()));
 
         return back()->with('success', 'Service created successfully.');
     }
 
     public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
-        $service->update($request->validated());
+        $service->update($this->withGroup($request->validated()));
 
         return back()->with('success', 'Service updated successfully.');
+    }
+
+    /**
+     * Resolve the service group from the submitted data, creating a new
+     * group when the admin typed one in, and drop the transient new_group key.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function withGroup(array $data): array
+    {
+        $name = trim($data['new_group'] ?? '');
+        unset($data['new_group']);
+
+        if ($name !== '') {
+            $data['service_group_id'] = ServiceGroup::firstOrCreate(['name' => $name])->id;
+        }
+
+        return $data;
+    }
+
+    public function toggle(Service $service): RedirectResponse
+    {
+        $service->update(['is_active' => ! $service->is_active]);
+
+        return back()->with('success', 'Service status updated.');
     }
 
     public function destroy(Service $service): RedirectResponse

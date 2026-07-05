@@ -1,4 +1,5 @@
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { SearchInput } from '@/components/shared/search-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -40,15 +41,11 @@ export function AppointmentFilters({
 }) {
     return (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <div className="relative">
-                <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                    value={values.search}
-                    onChange={(e) => setValue('search', e.target.value)}
-                    placeholder="Search # or customer..."
-                    className="pl-8"
-                />
-            </div>
+            <SearchInput
+                value={values.search}
+                onChange={(v) => setValue('search', v)}
+                placeholder="Search # or customer..."
+            />
 
             <Select
                 value={values.status}

@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ResolveCustomer;
 use App\Enums\AppointmentStatus;
 use App\Http\Requests\AppointmentRequest;
-use App\Models\AdminNotification;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Staff;
+use App\Services\AppointmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
@@ -18,6 +17,8 @@ use Inertia\Response;
 
 class AppointmentController extends Controller
 {
+    public function __construct(protected AppointmentService $appointments) {}
+
     public function index(Request $request): Response
     {
         $sort = $request->string('sort', 'appointment_date')->toString();
@@ -66,28 +67,9 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function store(AppointmentRequest $request, ResolveCustomer $resolveCustomer): RedirectResponse
+    public function store(AppointmentRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $customer = $resolveCustomer->handle($data);
-
-        $appointment = Appointment::create([
-            'customer_id' => $customer->id,
-            'service_id' => $data['service_id'],
-            'staff_id' => $data['staff_id'] ?? null,
-            'appointment_date' => $data['appointment_date'],
-            'start_time' => $data['start_time'],
-            'duration' => $data['duration'],
-            'status' => $data['status'],
-            'notes' => $data['notes'] ?? null,
-        ]);
-
-        AdminNotification::record(
-            'new_appointment',
-            'New appointment booked',
-            "{$customer->full_name} — {$appointment->appointment_number}",
-            ['appointment_id' => $appointment->id],
-        );
+        $this->appointments->create($request->validated());
 
         return redirect()->route('appointments.index')->with('success', 'Appointment created successfully.');
     }
@@ -114,32 +96,9 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function update(AppointmentRequest $request, Appointment $appointment, ResolveCustomer $resolveCustomer): RedirectResponse
+    public function update(AppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
-        $data = $request->validated();
-        $customer = $resolveCustomer->handle($data);
-
-        $wasRescheduled = $appointment->appointment_date->format('Y-m-d') !== $data['appointment_date']
-            || substr((string) $appointment->start_time, 0, 5) !== $data['start_time'];
-        $wasCancelled = $appointment->status !== AppointmentStatus::Cancelled
-            && $data['status'] === AppointmentStatus::Cancelled->value;
-
-        $appointment->update([
-            'customer_id' => $customer->id,
-            'service_id' => $data['service_id'],
-            'staff_id' => $data['staff_id'] ?? null,
-            'appointment_date' => $data['appointment_date'],
-            'start_time' => $data['start_time'],
-            'duration' => $data['duration'],
-            'status' => $data['status'],
-            'notes' => $data['notes'] ?? null,
-        ]);
-
-        if ($wasCancelled) {
-            $this->notifyAppointment('cancelled', 'Appointment cancelled', $appointment);
-        } elseif ($wasRescheduled) {
-            $this->notifyAppointment('rescheduled', 'Appointment rescheduled', $appointment);
-        }
+        $this->appointments->update($appointment, $request->validated());
 
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully.');
     }
@@ -158,7 +117,7 @@ class AppointmentController extends Controller
             'ids.*' => ['integer', 'exists:appointments,id'],
         ]);
 
-        Appointment::whereIn('id', $validated['ids'])->delete();
+        $this->appointments->bulkDelete($validated['ids']);
 
         return back()->with('success', count($validated['ids']).' appointment(s) deleted.');
     }
@@ -171,18 +130,8 @@ class AppointmentController extends Controller
             'status' => ['required', new Enum(AppointmentStatus::class)],
         ]);
 
-        Appointment::whereIn('id', $validated['ids'])->update(['status' => $validated['status']]);
+        $this->appointments->bulkUpdateStatus($validated['ids'], $validated['status']);
 
         return back()->with('success', count($validated['ids']).' appointment(s) updated.');
-    }
-
-    protected function notifyAppointment(string $type, string $title, Appointment $appointment): void
-    {
-        AdminNotification::record(
-            $type,
-            $title,
-            "{$appointment->appointment_number} — {$appointment->customer->full_name}",
-            ['appointment_id' => $appointment->id],
-        );
     }
 }

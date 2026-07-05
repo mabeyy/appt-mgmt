@@ -1,20 +1,33 @@
 import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import type { ReactElement } from 'react';
 import InputError from '@/components/input-error';
+import { CheckboxField } from '@/components/shared/checkbox-field';
 import { FormDialog, useFormDialog } from '@/components/shared/form-dialog';
-import { Checkbox } from '@/components/ui/checkbox';
+import { SegmentedToggle } from '@/components/shared/segmented-toggle';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { store, update } from '@/routes/services';
-import type { Service } from '@/types';
+import type { Service, ServiceGroup } from '@/types';
+
+type GroupMode = 'existing' | 'new';
 
 export function ServiceFormDialog({
     trigger,
     service,
+    groups,
 }: {
     trigger: ReactElement;
     service?: Service;
+    groups: ServiceGroup[];
 }) {
     const form = useForm({
         name: service?.name ?? '',
@@ -22,7 +35,26 @@ export function ServiceFormDialog({
         duration: service?.duration ?? 30,
         price: service?.price != null ? String(service.price) : '',
         is_active: service?.is_active ?? true,
+        service_group_id: service?.service_group_id
+            ? String(service.service_group_id)
+            : '',
+        new_group: '',
     });
+
+    const [groupMode, setGroupMode] = useState<GroupMode>(
+        groups.length === 0 ? 'new' : 'existing',
+    );
+
+    const switchGroupMode = (mode: GroupMode) => {
+        setGroupMode(mode);
+
+        // Keep only the field for the active mode so the backend gets a clean choice.
+        if (mode === 'existing') {
+            form.setData('new_group', '');
+        } else {
+            form.setData('service_group_id', '');
+        }
+    };
 
     const { open, onOpenChange, submit, isEdit } = useFormDialog(
         form,
@@ -55,6 +87,61 @@ export function ServiceFormDialog({
                     autoFocus
                 />
                 <InputError message={form.errors.name} />
+            </div>
+
+            <div className="grid gap-2">
+                <Label>Group</Label>
+                <SegmentedToggle
+                    value={groupMode}
+                    onChange={switchGroupMode}
+                    options={[
+                        {
+                            value: 'existing',
+                            label: 'Existing group',
+                            disabled: groups.length === 0,
+                        },
+                        { value: 'new', label: 'New group' },
+                    ]}
+                />
+                {groupMode === 'existing' ? (
+                    <Select
+                        value={form.data.service_group_id}
+                        onValueChange={(v) =>
+                            form.setData('service_group_id', String(v))
+                        }
+                        items={{
+                            '': 'No group',
+                            ...Object.fromEntries(
+                                groups.map((g) => [String(g.id), g.name]),
+                            ),
+                        }}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="No group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">No group</SelectItem>
+                            {groups.map((g) => (
+                                <SelectItem key={g.id} value={String(g.id)}>
+                                    {g.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                ) : (
+                    <Input
+                        value={form.data.new_group}
+                        onChange={(e) =>
+                            form.setData('new_group', e.target.value)
+                        }
+                        placeholder="e.g. Hair, Nails, Spa"
+                    />
+                )}
+                <InputError
+                    message={
+                        form.errors.new_group ?? form.errors.service_group_id
+                    }
+                />
             </div>
 
             <div className="grid gap-2">
@@ -100,15 +187,13 @@ export function ServiceFormDialog({
                 </div>
             </div>
 
-            <label className="flex items-center gap-2.5">
-                <Checkbox
-                    checked={form.data.is_active}
-                    onCheckedChange={(checked) =>
-                        form.setData('is_active', checked === true)
-                    }
-                />
-                <span className="text-sm">Active (available for booking)</span>
-            </label>
+            <CheckboxField
+                checked={form.data.is_active}
+                onCheckedChange={(checked) =>
+                    form.setData('is_active', checked)
+                }
+                label="Active (available for booking)"
+            />
         </FormDialog>
     );
 }

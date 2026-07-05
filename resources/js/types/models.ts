@@ -7,13 +7,20 @@ export type StatusOption = {
     color: string;
 };
 
+export type ServiceGroup = {
+    id: number;
+    name: string;
+};
+
 export type Service = {
     id: number;
+    service_group_id: number | null;
     name: string;
     description: string | null;
     duration: number;
     price: string | number;
     is_active: boolean;
+    group?: ServiceGroup | null;
     created_at?: string;
     updated_at?: string;
 };

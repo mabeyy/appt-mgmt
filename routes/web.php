@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('calendar/{appointment}/reschedule', [CalendarController::class, 'reschedule'])->name('calendar.reschedule');
 
     // Services / Staff / Customers
+    Route::patch('services/{service}/toggle', [ServiceController::class, 'toggle'])->name('services.toggle');
     Route::resource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('staff', StaffController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['staff' => 'staff']);
     Route::resource('customers', CustomerController::class)->only(['index', 'show', 'store', 'update', 'destroy']);

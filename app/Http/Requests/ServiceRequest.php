@@ -22,6 +22,8 @@ class ServiceRequest extends FormRequest
             'duration' => ['required', 'integer', 'min:5', 'max:1440'],
             'price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
+            'service_group_id' => ['nullable', 'integer', 'exists:service_groups,id'],
+            'new_group' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

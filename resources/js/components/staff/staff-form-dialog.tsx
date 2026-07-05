@@ -1,9 +1,9 @@
 import { useForm } from '@inertiajs/react';
 import type { ReactElement } from 'react';
 import InputError from '@/components/input-error';
+import { CheckboxField } from '@/components/shared/checkbox-field';
 import { FormDialog, useFormDialog } from '@/components/shared/form-dialog';
 import { WorkingDaysPicker } from '@/components/shared/working-days-picker';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { store, update } from '@/routes/staff';
@@ -126,15 +126,13 @@ export function StaffFormDialog({
                 </div>
             </div>
 
-            <label className="flex items-center gap-2.5">
-                <Checkbox
-                    checked={form.data.is_active}
-                    onCheckedChange={(checked) =>
-                        form.setData('is_active', checked === true)
-                    }
-                />
-                <span className="text-sm">Active</span>
-            </label>
+            <CheckboxField
+                checked={form.data.is_active}
+                onCheckedChange={(checked) =>
+                    form.setData('is_active', checked)
+                }
+                label="Active"
+            />
         </FormDialog>
     );
 }

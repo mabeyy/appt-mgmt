@@ -1,9 +1,9 @@
 import { Head, useForm } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { CheckboxField } from '@/components/shared/checkbox-field';
 import { WorkingDaysPicker } from '@/components/shared/working-days-picker';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -296,20 +296,13 @@ export default function BusinessSettings({
                         </div>
                     </div>
 
-                    <label className="flex items-center gap-2.5">
-                        <Checkbox
-                            checked={form.data.manual_approval}
-                            onCheckedChange={(checked) =>
-                                form.setData(
-                                    'manual_approval',
-                                    checked === true,
-                                )
-                            }
-                        />
-                        <span className="text-sm">
-                            Require manual approval for new appointments
-                        </span>
-                    </label>
+                    <CheckboxField
+                        checked={form.data.manual_approval}
+                        onCheckedChange={(checked) =>
+                            form.setData('manual_approval', checked)
+                        }
+                        label="Require manual approval for new appointments"
+                    />
                 </div>
 
                 <div className="flex items-center gap-3">

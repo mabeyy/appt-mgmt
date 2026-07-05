@@ -27,7 +27,7 @@ class AppointmentRequest extends FormRequest
 
             'service_id' => ['required', 'exists:services,id'],
             'staff_id' => ['nullable', 'exists:staff,id'],
-            'appointment_date' => ['required', 'date'],
+            'appointment_date' => ['required', 'date_format:Y-m-d'],
             'start_time' => ['required', 'date_format:H:i'],
             'duration' => ['required', 'integer', 'min:5', 'max:1440'],
             'status' => ['required', new Enum(AppointmentStatus::class)],

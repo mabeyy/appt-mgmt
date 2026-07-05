@@ -1,6 +1,6 @@
 import type { InertiaFormProps } from '@inertiajs/react';
 import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
+import { SegmentedToggle } from '@/components/shared/segmented-toggle';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -30,25 +30,18 @@ export function CustomerFields({
 }) {
     return (
         <div className="space-y-4">
-            <div className="flex gap-2">
-                <Button
-                    type="button"
-                    size="sm"
-                    variant={mode === 'existing' ? 'default' : 'outline'}
-                    onClick={() => onModeChange('existing')}
-                    disabled={customers.length === 0}
-                >
-                    Existing
-                </Button>
-                <Button
-                    type="button"
-                    size="sm"
-                    variant={mode === 'new' ? 'default' : 'outline'}
-                    onClick={() => onModeChange('new')}
-                >
-                    New customer
-                </Button>
-            </div>
+            <SegmentedToggle
+                value={mode}
+                onChange={onModeChange}
+                options={[
+                    {
+                        value: 'existing',
+                        label: 'Existing',
+                        disabled: customers.length === 0,
+                    },
+                    { value: 'new', label: 'New customer' },
+                ]}
+            />
 
             {mode === 'existing' ? (
                 <div className="grid gap-2">
