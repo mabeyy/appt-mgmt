@@ -5,12 +5,19 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Public\BookingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Public, guest-facing self-service booking.
+Route::get('book', [BookingController::class, 'index'])->name('book.index');
+Route::get('book/slots', [BookingController::class, 'slots'])->middleware('throttle:60,1')->name('book.slots');
+Route::post('book', [BookingController::class, 'store'])->middleware('throttle:public-booking')->name('book.store');
+Route::get('book/confirmed', [BookingController::class, 'confirmed'])->name('book.confirmation');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');

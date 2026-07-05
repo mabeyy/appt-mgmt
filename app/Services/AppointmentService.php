@@ -11,6 +11,7 @@ class AppointmentService
     public function __construct(
         protected ResolveCustomer $resolveCustomer,
         protected AppointmentNotifier $notifier,
+        protected AvailabilityService $availability,
     ) {}
 
     /**
@@ -18,6 +19,10 @@ class AppointmentService
      */
     public function create(array $data): Appointment
     {
+        // Backstop: enforce scheduling rules for every write path, even non-HTTP
+        // callers that bypass the FormRequest. Interval is advisory here.
+        $this->availability->assertAvailable(array_merge($data, ['enforce_interval' => false]));
+
         $customer = $this->resolveCustomer->handle($data);
 
         $appointment = Appointment::create($this->attributes($data, $customer->id));
@@ -31,6 +36,8 @@ class AppointmentService
      */
     public function update(Appointment $appointment, array $data): Appointment
     {
+        $this->availability->assertAvailable(array_merge($data, ['enforce_interval' => false]), $appointment);
+
         $customer = $this->resolveCustomer->handle($data);
 
         $wasRescheduled = $appointment->appointment_date->format('Y-m-d') !== $data['appointment_date']

@@ -4,9 +4,11 @@ import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileCo
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useInitials } from '@/hooks/use-initials';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import type { Auth } from '@/types';
@@ -23,6 +25,7 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const getInitials = useInitials();
 
     return (
         <>
@@ -46,6 +49,31 @@ export default function Profile({
                 >
                     {({ processing, errors }) => (
                         <>
+                            <div className="flex items-center gap-4">
+                                <Avatar className="size-16">
+                                    <AvatarImage
+                                        src={auth.user.avatar}
+                                        alt={auth.user.name}
+                                    />
+                                    <AvatarFallback className="text-lg">
+                                        {getInitials(auth.user.name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="avatar">
+                                        Profile photo
+                                    </Label>
+                                    <Input
+                                        id="avatar"
+                                        type="file"
+                                        name="avatar"
+                                        accept="image/*"
+                                        className="max-w-xs"
+                                    />
+                                    <InputError message={errors.avatar} />
+                                </div>
+                            </div>
+
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>
 

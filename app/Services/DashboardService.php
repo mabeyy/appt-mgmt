@@ -13,11 +13,12 @@ class DashboardService
     use AggregatesAppointmentStatuses;
 
     /**
-     * Build every dataset shown on the dashboard.
+     * Summary cards + status distribution — rendered immediately (they share
+     * one status-count query). Heavier datasets are deferred by the controller.
      *
      * @return array<string, mixed>
      */
-    public function metrics(): array
+    public function headline(): array
     {
         $statusCounts = $this->statusCounts(Appointment::query());
 
@@ -32,40 +33,68 @@ class DashboardService
                 'cancelled' => (int) ($statusCounts[AppointmentStatus::Cancelled->value] ?? 0),
                 'no_show' => (int) ($statusCounts[AppointmentStatus::NoShow->value] ?? 0),
             ],
-            'monthlyTrends' => $this->monthlyTrends(),
             'statusDistribution' => $this->statusDistribution($statusCounts),
-            'mostBookedServices' => Appointment::query()
-                ->selectRaw('service_id, count(*) as total')
-                ->with('service:id,name')
-                ->groupBy('service_id')
-                ->orderByDesc('total')
-                ->limit(5)
-                ->get()
-                ->map(fn ($row) => [
-                    'name' => $row->service?->name ?? 'Unknown',
-                    'count' => (int) $row->total,
-                ]),
-            'todaySchedule' => $this->serialize(
-                Appointment::today()
-                    ->with(['customer:id,full_name', 'service:id,name', 'staff:id,name'])
-                    ->orderBy('start_time')
-                    ->get()
-            ),
-            'upcomingAppointments' => $this->serialize(
-                Appointment::upcoming()
-                    ->with(['customer:id,full_name', 'service:id,name', 'staff:id,name'])
-                    ->orderBy('appointment_date')
-                    ->orderBy('start_time')
-                    ->limit(6)
-                    ->get()
-            ),
-            'recentBookings' => $this->serialize(
-                Appointment::with(['customer:id,full_name', 'service:id,name'])
-                    ->latest()
-                    ->limit(6)
-                    ->get()
-            ),
         ];
+    }
+
+    /**
+     * @return array<int, array{name: string, count: int}>
+     */
+    public function mostBookedServices(): array
+    {
+        return Appointment::query()
+            ->selectRaw('service_id, count(*) as total')
+            ->with('service:id,name')
+            ->groupBy('service_id')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->service?->name ?? 'Unknown',
+                'count' => (int) $row->total,
+            ])
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function todaySchedule(): array
+    {
+        return $this->serialize(
+            Appointment::today()
+                ->with(['customer:id,full_name', 'service:id,name', 'staff:id,name'])
+                ->orderBy('start_time')
+                ->get()
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function upcomingAppointments(): array
+    {
+        return $this->serialize(
+            Appointment::upcoming()
+                ->with(['customer:id,full_name', 'service:id,name', 'staff:id,name'])
+                ->orderBy('appointment_date')
+                ->orderBy('start_time')
+                ->limit(6)
+                ->get()
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function recentBookings(): array
+    {
+        return $this->serialize(
+            Appointment::with(['customer:id,full_name', 'service:id,name'])
+                ->latest()
+                ->limit(6)
+                ->get()
+        );
     }
 
     /**
@@ -74,7 +103,7 @@ class DashboardService
      *
      * @return array<int, array{month: string, count: int}>
      */
-    protected function monthlyTrends(): array
+    public function monthlyTrends(): array
     {
         $trends = [];
 

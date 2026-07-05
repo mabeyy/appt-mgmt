@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Deferred, Head, Link } from '@inertiajs/react';
 import {
     CalendarArrowUp,
     CalendarCheck2,
@@ -18,6 +18,10 @@ import {
 } from '@/components/shared/charts';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PageHeader } from '@/components/shared/page-header';
+import {
+    ChartSkeleton,
+    WidgetCardSkeleton,
+} from '@/components/shared/skeletons';
 import { StatCard } from '@/components/shared/stat-card';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
@@ -51,12 +55,13 @@ type Summary = {
 
 type Props = {
     summary: Summary;
-    monthlyTrends: Array<{ month: string; count: number }>;
     statusDistribution: Array<{ status: string; value: number; color: string }>;
-    mostBookedServices: Array<{ name: string; count: number }>;
-    todaySchedule: AppointmentWidgetItem[];
-    upcomingAppointments: AppointmentWidgetItem[];
-    recentBookings: AppointmentWidgetItem[];
+    // Deferred — undefined until streamed in after first paint.
+    monthlyTrends?: Array<{ month: string; count: number }>;
+    mostBookedServices?: Array<{ name: string; count: number }>;
+    todaySchedule?: AppointmentWidgetItem[];
+    upcomingAppointments?: AppointmentWidgetItem[];
+    recentBookings?: AppointmentWidgetItem[];
 };
 
 const cards = [
@@ -233,11 +238,16 @@ export default function Dashboard({
                             <CardDescription>Last 12 months</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <AppLineChart
-                                data={monthlyTrends}
-                                xKey="month"
-                                yKey="count"
-                            />
+                            <Deferred
+                                data="monthlyTrends"
+                                fallback={<ChartSkeleton />}
+                            >
+                                <AppLineChart
+                                    data={monthlyTrends ?? []}
+                                    xKey="month"
+                                    yKey="count"
+                                />
+                            </Deferred>
                         </CardContent>
                     </Card>
                     <Card>
@@ -259,38 +269,58 @@ export default function Dashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <AppBarChart
-                            data={mostBookedServices}
-                            xKey="name"
-                            yKey="count"
-                            height={260}
-                        />
+                        <Deferred
+                            data="mostBookedServices"
+                            fallback={<ChartSkeleton height={260} />}
+                        >
+                            <AppBarChart
+                                data={mostBookedServices ?? []}
+                                xKey="name"
+                                yKey="count"
+                                height={260}
+                            />
+                        </Deferred>
                     </CardContent>
                 </Card>
 
                 {/* Widgets */}
-                <div className="grid gap-4 lg:grid-cols-3">
-                    <WidgetList
-                        title="Today's Schedule"
-                        description={formatDate(new Date().toISOString())}
-                        items={todaySchedule}
-                        empty="No appointments scheduled for today."
-                    />
-                    <WidgetList
-                        title="Upcoming Appointments"
-                        description="Next scheduled bookings"
-                        items={upcomingAppointments}
-                        showDate
-                        empty="No upcoming appointments."
-                    />
-                    <WidgetList
-                        title="Recent Bookings"
-                        description="Latest created appointments"
-                        items={recentBookings}
-                        showDate
-                        empty="No bookings yet."
-                    />
-                </div>
+                <Deferred
+                    data={[
+                        'todaySchedule',
+                        'upcomingAppointments',
+                        'recentBookings',
+                    ]}
+                    fallback={
+                        <div className="grid gap-4 lg:grid-cols-3">
+                            <WidgetCardSkeleton />
+                            <WidgetCardSkeleton />
+                            <WidgetCardSkeleton />
+                        </div>
+                    }
+                >
+                    <div className="grid gap-4 lg:grid-cols-3">
+                        <WidgetList
+                            title="Today's Schedule"
+                            description={formatDate(new Date().toISOString())}
+                            items={todaySchedule ?? []}
+                            empty="No appointments scheduled for today."
+                        />
+                        <WidgetList
+                            title="Upcoming Appointments"
+                            description="Next scheduled bookings"
+                            items={upcomingAppointments ?? []}
+                            showDate
+                            empty="No upcoming appointments."
+                        />
+                        <WidgetList
+                            title="Recent Bookings"
+                            description="Latest created appointments"
+                            items={recentBookings ?? []}
+                            showDate
+                            empty="No bookings yet."
+                        />
+                    </div>
+                </Deferred>
             </div>
         </>
     );

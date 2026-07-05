@@ -68,7 +68,10 @@ class Appointment extends Model
             return null;
         }
 
-        return Carbon::parse($this->appointment_date->format('Y-m-d').' '.$this->start_time);
+        return Carbon::parse(
+            $this->appointment_date->format('Y-m-d').' '.$this->start_time,
+            Setting::get('timezone'),
+        );
     }
 
     public function endsAt(): ?Carbon

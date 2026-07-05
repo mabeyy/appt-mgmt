@@ -6,7 +6,10 @@ use App\Models\Appointment;
 
 class CalendarService
 {
-    public function __construct(protected AppointmentNotifier $notifier) {}
+    public function __construct(
+        protected AppointmentNotifier $notifier,
+        protected AvailabilityService $availability,
+    ) {}
 
     /**
      * Build FullCalendar events for the given filter set.
@@ -46,6 +49,17 @@ class CalendarService
     {
         $moved = $appointment->appointment_date->format('Y-m-d') !== $data['appointment_date']
             || substr((string) $appointment->start_time, 0, 5) !== $data['start_time'];
+
+        // Validate the target slot against the appointment's own service/staff/duration.
+        $this->availability->assertAvailable([
+            'appointment_date' => $data['appointment_date'],
+            'start_time' => $data['start_time'],
+            'duration' => $appointment->duration,
+            'service_id' => $appointment->service_id,
+            'staff_id' => $appointment->staff_id,
+            'status' => $appointment->status->value,
+            'enforce_interval' => false,
+        ], $appointment);
 
         $appointment->update($data);
 

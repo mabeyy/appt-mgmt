@@ -5,7 +5,6 @@ import {
     CircleX,
     Download,
     Hourglass,
-    Printer,
     UserX,
 } from 'lucide-react';
 import { AppBarChart, AppPieChart } from '@/components/shared/charts';
@@ -13,6 +12,12 @@ import { PageHeader } from '@/components/shared/page-header';
 import { StatCard } from '@/components/shared/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -72,8 +77,8 @@ export default function ReportsIndex({
         150,
     );
 
-    const exportUrl = (() => {
-        const params = new URLSearchParams({ period: values.period });
+    const exportUrl = (format: 'csv' | 'excel' | 'pdf') => {
+        const params = new URLSearchParams({ period: values.period, format });
 
         if (values.period === 'custom') {
             params.set('date_from', values.date_from);
@@ -81,7 +86,7 @@ export default function ReportsIndex({
         }
 
         return `${exportMethod().url}?${params.toString()}`;
-    })();
+    };
 
     return (
         <>
@@ -91,14 +96,32 @@ export default function ReportsIndex({
                     title="Reports"
                     description="Analyze appointment performance over time."
                 >
-                    <Button variant="outline" onClick={() => window.print()}>
-                        <Printer /> Print / PDF
-                    </Button>
-                    <a href={exportUrl}>
-                        <Button>
-                            <Download /> Export CSV
-                        </Button>
-                    </a>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger
+                            render={
+                                <Button>
+                                    <Download /> Export
+                                </Button>
+                            }
+                        />
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                render={<a href={exportUrl('csv')} />}
+                            >
+                                CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                render={<a href={exportUrl('excel')} />}
+                            >
+                                Excel (.xlsx)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                render={<a href={exportUrl('pdf')} />}
+                            >
+                                PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </PageHeader>
 
                 {/* Period filter */}
