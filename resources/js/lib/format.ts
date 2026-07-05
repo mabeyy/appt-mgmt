@@ -45,6 +45,11 @@ export function formatCurrency(
     }).format(Number.isFinite(num) ? num : 0);
 }
 
+/** Today's date in the viewer's LOCAL timezone as 'yyyy-MM-dd' (never UTC). */
+export function todayLocal(): string {
+    return format(new Date(), 'yyyy-MM-dd');
+}
+
 export function formatDuration(minutes: number): string {
     if (minutes < 60) {
         return `${minutes} min`;

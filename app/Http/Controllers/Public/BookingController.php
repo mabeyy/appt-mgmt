@@ -15,6 +15,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -42,8 +44,8 @@ class BookingController extends Controller
     public function slots(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'service_id' => ['required', 'exists:services,id'],
-            'staff_id' => ['nullable', 'exists:staff,id'],
+            'service_id' => ['required', Rule::exists('services', 'id')->where('is_active', true)],
+            'staff_id' => ['nullable', Rule::exists('staff', 'id')->where('is_active', true)],
             'date' => ['required', 'date_format:Y-m-d'],
         ]);
 
@@ -57,9 +59,30 @@ class BookingController extends Controller
 
     public function store(PublicBookingRequest $request): RedirectResponse
     {
+        $data = $request->bookingData();
+
+        // "Any staff" must resolve to a concrete, free staff member so the
+        // booking actually reserves a resource (and can't stack on one slot).
+        // If the business has no staff at all, leave it unassigned.
+        if (empty($data['staff_id']) && Staff::where('is_active', true)->exists()) {
+            $staff = $this->availability->firstAvailableStaff(
+                $data['appointment_date'],
+                $data['start_time'],
+                $data['duration'],
+            );
+
+            if (! $staff) {
+                throw ValidationException::withMessages([
+                    'start_time' => 'No staff member is available at this time. Please choose another slot.',
+                ]);
+            }
+
+            $data['staff_id'] = $staff->id;
+        }
+
         // AppointmentService::create asserts availability first, so an invalid
         // slot surfaces as a validation error before any customer is created.
-        $appointment = $this->appointments->create($request->bookingData());
+        $appointment = $this->appointments->create($data);
 
         if ($appointment->customer->email) {
             Mail::to($appointment->customer->email)->queue(new BookingConfirmation($appointment));

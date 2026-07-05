@@ -58,7 +58,6 @@ class CalendarService
             'service_id' => $appointment->service_id,
             'staff_id' => $appointment->staff_id,
             'status' => $appointment->status->value,
-            'enforce_interval' => false,
         ], $appointment);
 
         $appointment->update($data);

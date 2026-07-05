@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Actions\ResolveCustomer;
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
+use App\Models\Staff;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentService
 {
@@ -19,16 +21,22 @@ class AppointmentService
      */
     public function create(array $data): Appointment
     {
-        // Backstop: enforce scheduling rules for every write path, even non-HTTP
-        // callers that bypass the FormRequest. Interval is advisory here.
-        $this->availability->assertAvailable(array_merge($data, ['enforce_interval' => false]));
+        // Lock the staff row, then check-and-insert atomically so two
+        // concurrent requests can't both pass the overlap check (TOCTOU).
+        return DB::transaction(function () use ($data) {
+            $this->lockStaff($data['staff_id'] ?? null);
 
-        $customer = $this->resolveCustomer->handle($data);
+            // Backstop: enforce scheduling rules for every write path, even
+            // non-HTTP callers that bypass the FormRequest.
+            $this->availability->assertAvailable($data);
 
-        $appointment = Appointment::create($this->attributes($data, $customer->id));
-        $this->notifier->created($appointment);
+            $customer = $this->resolveCustomer->handle($data);
 
-        return $appointment;
+            $appointment = Appointment::create($this->attributes($data, $customer->id));
+            $this->notifier->created($appointment);
+
+            return $appointment;
+        });
     }
 
     /**
@@ -36,24 +44,39 @@ class AppointmentService
      */
     public function update(Appointment $appointment, array $data): Appointment
     {
-        $this->availability->assertAvailable(array_merge($data, ['enforce_interval' => false]), $appointment);
+        return DB::transaction(function () use ($appointment, $data) {
+            $this->lockStaff($data['staff_id'] ?? null);
 
-        $customer = $this->resolveCustomer->handle($data);
+            $this->availability->assertAvailable($data, $appointment);
 
-        $wasRescheduled = $appointment->appointment_date->format('Y-m-d') !== $data['appointment_date']
-            || substr((string) $appointment->start_time, 0, 5) !== $data['start_time'];
-        $wasCancelled = $appointment->status !== AppointmentStatus::Cancelled
-            && $data['status'] === AppointmentStatus::Cancelled->value;
+            $customer = $this->resolveCustomer->handle($data);
 
-        $appointment->update($this->attributes($data, $customer->id));
+            $wasRescheduled = $appointment->appointment_date->format('Y-m-d') !== $data['appointment_date']
+                || substr((string) $appointment->start_time, 0, 5) !== $data['start_time'];
+            $wasCancelled = $appointment->status !== AppointmentStatus::Cancelled
+                && $data['status'] === AppointmentStatus::Cancelled->value;
 
-        if ($wasCancelled) {
-            $this->notifier->cancelled($appointment);
-        } elseif ($wasRescheduled) {
-            $this->notifier->rescheduled($appointment);
+            $appointment->update($this->attributes($data, $customer->id));
+
+            if ($wasCancelled) {
+                $this->notifier->cancelled($appointment);
+            } elseif ($wasRescheduled) {
+                $this->notifier->rescheduled($appointment);
+            }
+
+            return $appointment;
+        });
+    }
+
+    /**
+     * Serialize concurrent bookings for the same staff member by taking a row
+     * lock inside the surrounding transaction.
+     */
+    protected function lockStaff(mixed $staffId): void
+    {
+        if ($staffId) {
+            Staff::whereKey($staffId)->lockForUpdate()->first();
         }
-
-        return $appointment;
     }
 
     /**

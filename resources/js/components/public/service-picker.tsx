@@ -1,5 +1,5 @@
 import { formatCurrency, formatDuration } from '@/lib/format';
-import { cn } from '@/lib/utils';
+import { SelectableCard } from './selectable-card';
 import type { BookingGroup, BookingService } from './types';
 
 export function ServicePicker({
@@ -28,16 +28,10 @@ export function ServicePicker({
                     </h3>
                     <div className="grid gap-3 sm:grid-cols-2">
                         {group.services.map((service) => (
-                            <button
+                            <SelectableCard
                                 key={service.id}
-                                type="button"
+                                selected={value === String(service.id)}
                                 onClick={() => onSelect(service)}
-                                className={cn(
-                                    'rounded-lg border p-4 text-left transition-colors hover:border-primary/60',
-                                    value === String(service.id)
-                                        ? 'border-primary ring-1 ring-primary'
-                                        : 'border-input',
-                                )}
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <span className="font-medium">
@@ -55,7 +49,7 @@ export function ServicePicker({
                                 <p className="mt-2 text-xs text-muted-foreground">
                                     {formatDuration(service.duration)}
                                 </p>
-                            </button>
+                            </SelectableCard>
                         ))}
                     </div>
                 </div>

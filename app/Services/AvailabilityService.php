@@ -69,14 +69,14 @@ class AvailabilityService
         $settings = Setting::values();
         $tz = $settings['timezone'] ?? config('app.timezone');
         $staffId = $data['staff_id'] ?? null;
-        $enforceInterval = $data['enforce_interval'] ?? true;
 
         $start = Carbon::parse("$date $startTime", $tz);
         $end = $start->copy()->addMinutes($duration);
         $weekday = strtolower($start->englishDayOfWeek);
         $errors = [];
 
-        // 1. Past date.
+        // 1. Past date. (Interval alignment and past-time are enforced for the
+        // public flow in PublicBookingRequest; admins may book off-grid / same-day.)
         if ($start->copy()->startOfDay()->lt(Carbon::today($tz))) {
             return ['appointment_date' => 'The appointment date cannot be in the past.'];
         }
@@ -94,25 +94,17 @@ class AvailabilityService
                 .$this->hm($settings['business_hours_start']).'–'.$this->hm($settings['business_hours_end']).').';
         }
 
-        // 4. Start aligns to the booking interval (strict for public, advisory for admin).
-        if ($enforceInterval) {
-            $interval = (int) ($settings['appointment_interval'] ?? 30);
-            if ($interval > 0 && $bhStart->diffInMinutes($start, false) % $interval !== 0) {
-                $errors['start_time'] = 'Please choose a time on a '.$interval.'-minute interval.';
-            }
-        }
-
-        // 5. Staff availability (only when assigned).
+        // 4. Staff availability (only when assigned).
         if ($staffId) {
             $errors += $this->staffViolations((int) $staffId, $date, $start, $end, $weekday, $tz, $settings);
         }
 
-        // 6. Per-day capacity.
+        // 5. Per-day capacity.
         if ($capacity = $this->capacityViolation($date, $staffId, $settings, $ignore)) {
             $errors['appointment_date'] = $capacity;
         }
 
-        // 7. Overlap — only worth checking once the slot is otherwise valid.
+        // 6. Overlap — only worth checking once the slot is otherwise valid.
         if ($staffId && ! isset($errors['start_time']) && ! isset($errors['staff_id'])
             && ! $this->isSlotAvailable($date, $startTime, $duration, (int) $staffId, $ignore?->id)) {
             $errors['start_time'] = 'This time overlaps another appointment for the selected staff.';
@@ -227,6 +219,27 @@ class AvailabilityService
     }
 
     /**
+     * The first active staff member who can take a slot (used to assign an
+     * "any staff" public booking to a concrete, non-overlapping resource).
+     */
+    public function firstAvailableStaff(string $date, string $startTime, int $duration): ?Staff
+    {
+        $settings = Setting::values();
+        $tz = $settings['timezone'] ?? config('app.timezone');
+        $start = Carbon::parse("$date $startTime", $tz);
+        $end = $start->copy()->addMinutes($duration);
+        $weekday = strtolower($start->englishDayOfWeek);
+
+        return Staff::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->first(fn (Staff $s) => $this->staffWorksDay($s, $weekday, $settings)
+                && $this->staffWithinHours($s, $date, $start, $end, $tz)
+                && $this->capacityViolation($date, $s->id, $settings, null) === null
+                && $this->isSlotAvailable($date, $startTime, $duration, $s->id));
+    }
+
+    /**
      * @param  array<string, mixed>  $settings
      * @return array<string, string>
      */
@@ -238,18 +251,13 @@ class AvailabilityService
             return ['staff_id' => 'The selected staff member is not available.'];
         }
 
-        $staffDays = $staff->working_days ?? ($settings['working_days'] ?? []);
-        if (! in_array($weekday, $staffDays, true)) {
+        if (! $this->staffWorksDay($staff, $weekday, $settings)) {
             return ['staff_id' => $staff->name.' does not work on '.$start->format('l').'.'];
         }
 
-        if ($staff->working_start && $staff->working_end) {
-            $ws = Carbon::parse("$date ".$staff->working_start, $tz);
-            $we = Carbon::parse("$date ".$staff->working_end, $tz);
-            if ($start->lt($ws) || $end->gt($we)) {
-                return ['staff_id' => $staff->name.' is only available '
-                    .$this->hm($staff->working_start).'–'.$this->hm($staff->working_end).'.'];
-            }
+        if (! $this->staffWithinHours($staff, $date, $start, $end, $tz)) {
+            return ['staff_id' => $staff->name.' is only available '
+                .$this->hm($staff->working_start).'–'.$this->hm($staff->working_end).'.'];
         }
 
         return [];
@@ -260,20 +268,30 @@ class AvailabilityService
      */
     protected function staffOpen(Staff $staff, string $date, Carbon $start, Carbon $end, string $weekday, string $tz, array $settings): bool
     {
-        $staffDays = $staff->working_days ?? ($settings['working_days'] ?? []);
-        if (! in_array($weekday, $staffDays, true)) {
-            return false;
+        return $this->staffWorksDay($staff, $weekday, $settings)
+            && $this->staffWithinHours($staff, $date, $start, $end, $tz);
+    }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     */
+    protected function staffWorksDay(Staff $staff, string $weekday, array $settings): bool
+    {
+        $days = $staff->working_days ?? ($settings['working_days'] ?? []);
+
+        return in_array($weekday, $days, true);
+    }
+
+    protected function staffWithinHours(Staff $staff, string $date, Carbon $start, Carbon $end, string $tz): bool
+    {
+        if (! $staff->working_start || ! $staff->working_end) {
+            return true;
         }
 
-        if ($staff->working_start && $staff->working_end) {
-            $ws = Carbon::parse("$date ".$staff->working_start, $tz);
-            $we = Carbon::parse("$date ".$staff->working_end, $tz);
-            if ($start->lt($ws) || $end->gt($we)) {
-                return false;
-            }
-        }
+        $ws = Carbon::parse("$date ".$staff->working_start, $tz);
+        $we = Carbon::parse("$date ".$staff->working_end, $tz);
 
-        return true;
+        return ! ($start->lt($ws) || $end->gt($we));
     }
 
     /**

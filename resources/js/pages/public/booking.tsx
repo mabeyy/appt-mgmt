@@ -2,7 +2,9 @@ import { Head, useForm } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, CalendarCheck } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { BookingStepper } from '@/components/public/booking-stepper';
+import { ContactFields } from '@/components/public/contact-fields';
 import { ServicePicker } from '@/components/public/service-picker';
+import { StaffPicker } from '@/components/public/staff-picker';
 import { TimeSlotGrid } from '@/components/public/time-slot-grid';
 import type {
     BookingGroup,
@@ -13,15 +15,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { formatCurrency, formatDate, formatDuration } from '@/lib/format';
-import { cn } from '@/lib/utils';
+import {
+    formatCurrency,
+    formatDate,
+    formatDuration,
+    todayLocal,
+} from '@/lib/format';
 import { slots as slotsRoute, store } from '@/routes/book';
 
 type Props = {
     serviceGroups: BookingGroup[];
     staff: BookingStaff[];
-    business: { phone: string | null; address: string | null };
 };
 
 const STEPS = ['Service', 'Staff', 'Date & time', 'Your details', 'Confirm'];
@@ -60,7 +64,7 @@ export default function Booking({ serviceGroups, staff }: Props) {
         services.find((s) => String(s.id) === data.service_id) ?? null;
     const selectedStaff =
         staff.find((s) => String(s.id) === data.staff_id) ?? null;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayLocal();
 
     // Fetch open slots for an explicit service/staff/date on user action.
     const loadSlots = (serviceId: string, staffId: string, date: string) => {
@@ -142,6 +146,14 @@ export default function Booking({ serviceGroups, staff }: Props) {
                 } else if (e.staff_id) {
                     setStep(1);
                 } else if (e.appointment_date || e.start_time) {
+                    // The chosen slot was taken/invalid — clear it and refresh
+                    // the grid so the stale time can't be re-submitted.
+                    setData('start_time', '');
+                    loadSlots(
+                        data.service_id,
+                        data.staff_id,
+                        data.appointment_date,
+                    );
                     setStep(2);
                 } else if (
                     e.customer_name ||
@@ -186,50 +198,11 @@ export default function Booking({ serviceGroups, staff }: Props) {
                         )}
 
                         {step === 1 && (
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                <button
-                                    type="button"
-                                    onClick={() => chooseStaff('')}
-                                    className={cn(
-                                        'rounded-lg border p-4 text-left transition-colors hover:border-primary/60',
-                                        data.staff_id === ''
-                                            ? 'border-primary ring-1 ring-primary'
-                                            : 'border-input',
-                                    )}
-                                >
-                                    <span className="font-medium">
-                                        Any available
-                                    </span>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        We'll assign the first free staff
-                                        member.
-                                    </p>
-                                </button>
-                                {staff.map((member) => (
-                                    <button
-                                        key={member.id}
-                                        type="button"
-                                        onClick={() =>
-                                            chooseStaff(String(member.id))
-                                        }
-                                        className={cn(
-                                            'rounded-lg border p-4 text-left transition-colors hover:border-primary/60',
-                                            data.staff_id === String(member.id)
-                                                ? 'border-primary ring-1 ring-primary'
-                                                : 'border-input',
-                                        )}
-                                    >
-                                        <span className="font-medium">
-                                            {member.name}
-                                        </span>
-                                        {member.position && (
-                                            <p className="mt-1 text-xs text-muted-foreground">
-                                                {member.position}
-                                            </p>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
+                            <StaffPicker
+                                staff={staff}
+                                value={data.staff_id}
+                                onSelect={chooseStaff}
+                            />
                         )}
 
                         {step === 2 && (
@@ -264,85 +237,18 @@ export default function Booking({ serviceGroups, staff }: Props) {
                         )}
 
                         {step === 3 && (
-                            <div className="grid gap-4">
-                                <div className="grid gap-1.5">
-                                    <Label htmlFor="customer_name">
-                                        Full name
-                                    </Label>
-                                    <Input
-                                        id="customer_name"
-                                        value={data.customer_name}
-                                        onChange={(e) =>
-                                            setData(
-                                                'customer_name',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                    {errors.customer_name && (
-                                        <p className="text-sm text-destructive">
-                                            {errors.customer_name}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <div className="grid gap-1.5">
-                                        <Label htmlFor="customer_email">
-                                            Email
-                                        </Label>
-                                        <Input
-                                            id="customer_email"
-                                            type="email"
-                                            value={data.customer_email}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'customer_email',
-                                                    e.target.value,
-                                                )
-                                            }
-                                        />
-                                        {errors.customer_email && (
-                                            <p className="text-sm text-destructive">
-                                                {errors.customer_email}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="grid gap-1.5">
-                                        <Label htmlFor="customer_phone">
-                                            Phone
-                                        </Label>
-                                        <Input
-                                            id="customer_phone"
-                                            value={data.customer_phone}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'customer_phone',
-                                                    e.target.value,
-                                                )
-                                            }
-                                        />
-                                        {errors.customer_phone && (
-                                            <p className="text-sm text-destructive">
-                                                {errors.customer_phone}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="grid gap-1.5">
-                                    <Label htmlFor="notes">
-                                        Notes (optional)
-                                    </Label>
-                                    <Textarea
-                                        id="notes"
-                                        rows={3}
-                                        value={data.notes}
-                                        onChange={(e) =>
-                                            setData('notes', e.target.value)
-                                        }
-                                        placeholder="Anything we should know?"
-                                    />
-                                </div>
-                            </div>
+                            <ContactFields
+                                values={{
+                                    customer_name: data.customer_name,
+                                    customer_email: data.customer_email,
+                                    customer_phone: data.customer_phone,
+                                    notes: data.notes,
+                                }}
+                                errors={errors}
+                                onChange={(field, value) =>
+                                    setData(field, value)
+                                }
+                            />
                         )}
 
                         {step === 4 && (

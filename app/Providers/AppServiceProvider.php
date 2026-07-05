@@ -35,8 +35,9 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting(): void
     {
-        RateLimiter::for('public-booking', fn (Request $request) => Limit::perMinute(10)
-            ->by($request->ip().'|'.$request->input('customer_email')));
+        // Key by IP only — the email is client-supplied, so keying by it would
+        // let a caller mint a fresh bucket per email and bypass the limit.
+        RateLimiter::for('public-booking', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
     }
 
     /**

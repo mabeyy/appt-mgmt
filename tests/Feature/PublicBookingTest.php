@@ -4,6 +4,7 @@ use App\Enums\AppointmentStatus;
 use App\Mail\BookingConfirmation;
 use App\Models\AdminNotification;
 use App\Models\Appointment;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 // Reuses makeService(), makeStaff(), nextMonday() from AvailabilityTest.php
@@ -68,6 +69,43 @@ it('rejects a public booking in the past', function () {
         'customer_email' => 'g@example.com',
         'customer_phone' => '555-0100',
     ])->assertSessionHasErrors('appointment_date');
+
+    expect(Appointment::count())->toBe(0);
+});
+
+it('assigns a concrete staff member for an "any staff" booking', function () {
+    Mail::fake();
+    $service = makeService(60);
+    $staff = makeStaff();
+
+    $this->post(route('book.store'), [
+        'service_id' => $service->id,
+        // no staff_id -> "any available"
+        'appointment_date' => nextMonday(),
+        'start_time' => '10:00',
+        'customer_name' => 'Guest',
+        'customer_email' => 'any@example.com',
+        'customer_phone' => '555-0100',
+    ])->assertRedirect(route('book.confirmation'));
+
+    expect(Appointment::first()->staff_id)->toBe($staff->id);
+});
+
+it('rejects a public booking earlier the same day', function () {
+    $service = makeService(60);
+    $staff = makeStaff();
+    $date = nextMonday();
+    $this->travelTo(Carbon::parse($date.' 14:00'));
+
+    $this->post(route('book.store'), [
+        'service_id' => $service->id,
+        'staff_id' => $staff->id,
+        'appointment_date' => $date,
+        'start_time' => '09:00', // earlier than "now" (14:00) on the same day
+        'customer_name' => 'Guest',
+        'customer_email' => 'g@example.com',
+        'customer_phone' => '555-0100',
+    ])->assertSessionHasErrors('start_time');
 
     expect(Appointment::count())->toBe(0);
 });

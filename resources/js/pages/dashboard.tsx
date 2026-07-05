@@ -32,7 +32,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { formatDate, formatTime } from '@/lib/format';
+import { formatDate, formatTime, todayLocal } from '@/lib/format';
 import { dashboard } from '@/routes';
 import {
     create as createAppointment,
@@ -301,7 +301,7 @@ export default function Dashboard({
                     <div className="grid gap-4 lg:grid-cols-3">
                         <WidgetList
                             title="Today's Schedule"
-                            description={formatDate(new Date().toISOString())}
+                            description={formatDate(todayLocal())}
                             items={todaySchedule ?? []}
                             empty="No appointments scheduled for today."
                         />
