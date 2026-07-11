@@ -46,6 +46,7 @@ export type Customer = {
     phone: string | null;
     address: string | null;
     appointments_count?: number;
+    is_duplicate?: boolean;
     created_at?: string;
     updated_at?: string;
 };

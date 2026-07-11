@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('services/{service}/toggle', [ServiceController::class, 'toggle'])->name('services.toggle');
     Route::resource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('staff', StaffController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['staff' => 'staff']);
+    Route::post('customers/merge', [CustomerController::class, 'merge'])->name('customers.merge');
     Route::resource('customers', CustomerController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
     // Reports
