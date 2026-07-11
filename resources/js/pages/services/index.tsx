@@ -137,6 +137,7 @@ export default function ServicesIndex({ services, groups, filters }: Props) {
                                         <TableCell>
                                             <label className="flex cursor-pointer items-center gap-2">
                                                 <Switch
+                                                    className="transition-colors duration-300 data-checked:bg-emerald-500 [&_[data-slot=switch-thumb]]:!bg-white"
                                                     checked={service.is_active}
                                                     onCheckedChange={() =>
                                                         router.patch(

@@ -188,7 +188,7 @@ export function AppPieChart({
                     <Tooltip contentStyle={tooltipStyle} />
                 </PieChart>
             </ResponsiveContainer>
-            <ul className="grid w-full gap-2 text-sm sm:max-w-[180px]">
+            <ul className="grid w-full gap-2 text-sm sm:flex-1 sm:pr-6">
                 {data.map((entry) => (
                     <li
                         key={entry.status}
