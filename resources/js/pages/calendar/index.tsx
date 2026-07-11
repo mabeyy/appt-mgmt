@@ -1,4 +1,8 @@
-import type { EventInput, EventSourceFuncArg } from '@fullcalendar/core';
+import type {
+    EventContentArg,
+    EventInput,
+    EventSourceFuncArg,
+} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
@@ -14,6 +18,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { show } from '@/routes/appointments';
 import { events as eventsRoute, reschedule } from '@/routes/calendar';
 import { index } from '@/routes/calendar';
@@ -31,6 +40,58 @@ const LEGEND = [
     { label: 'Cancelled', color: '#ef4444' },
     { label: 'No Show', color: '#6b7280' },
 ];
+
+// A compact colored event chip with a hover card showing the full details.
+function renderEvent(arg: EventContentArg) {
+    const p = arg.event.extendedProps as {
+        customer?: string;
+        service?: string;
+        staff?: string | null;
+        status_label?: string;
+        appointment_number?: string;
+    };
+    const color = arg.event.backgroundColor;
+
+    return (
+        <Tooltip>
+            <TooltipTrigger
+                render={
+                    <div className="flex w-full cursor-pointer items-center gap-1 overflow-hidden rounded px-1 py-0.5" />
+                }
+            >
+                <span
+                    className="size-1.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: color }}
+                />
+                {arg.timeText && (
+                    <span className="shrink-0 font-medium">
+                        {arg.timeText}
+                    </span>
+                )}
+                <span className="truncate">{p.customer}</span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+                <div className="space-y-1 py-0.5 text-left">
+                    <div className="flex items-center gap-1.5 font-medium">
+                        <span
+                            className="size-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: color }}
+                        />
+                        {p.customer}
+                    </div>
+                    {p.service && <div>{p.service}</div>}
+                    <div className="text-background/70">
+                        {arg.timeText || 'All day'} ·{' '}
+                        {p.staff ?? 'Unassigned'}
+                    </div>
+                    <div className="text-background/70">
+                        {p.status_label} · {p.appointment_number}
+                    </div>
+                </div>
+            </TooltipContent>
+        </Tooltip>
+    );
+}
 
 export default function CalendarPage({ services, staff }: Props) {
     const calendarRef = useRef<FullCalendar>(null);
@@ -142,7 +203,7 @@ export default function CalendarPage({ services, staff }: Props) {
                 </div>
 
                 <Card>
-                    <CardContent className="p-3 md:p-4">
+                    <CardContent className="py-3 md:py-4">
                         <FullCalendar
                             ref={calendarRef}
                             plugins={[
@@ -160,6 +221,12 @@ export default function CalendarPage({ services, staff }: Props) {
                             editable
                             eventDurationEditable={false}
                             dayMaxEvents={3}
+                            eventContent={renderEvent}
+                            eventTimeFormat={{
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                meridiem: 'short',
+                            }}
                             nowIndicator
                             events={fetchEvents}
                             eventDrop={(arg) => {

@@ -20,7 +20,7 @@ class CalendarService
     public function events(array $filters): array
     {
         return Appointment::query()
-            ->with(['customer:id,full_name', 'service:id,name'])
+            ->with(['customer:id,full_name', 'service:id,name', 'staff:id,name'])
             ->when(! empty($filters['start']), fn ($q) => $q->whereDate('appointment_date', '>=', $filters['start']))
             ->when(! empty($filters['end']), fn ($q) => $q->whereDate('appointment_date', '<=', $filters['end']))
             ->when(! empty($filters['service_id']), fn ($q) => $q->where('service_id', $filters['service_id']))
@@ -37,6 +37,9 @@ class CalendarService
                     'status' => $a->status->value,
                     'status_label' => $a->status->label(),
                     'appointment_number' => $a->appointment_number,
+                    'customer' => $a->customer?->full_name ?? 'Customer',
+                    'service' => $a->service?->name,
+                    'staff' => $a->staff?->name,
                 ],
             ])
             ->all();
