@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Pencil, Plus, UsersRound } from 'lucide-react';
 import { DataPagination } from '@/components/shared/data-pagination';
 import { DeleteConfirmButton } from '@/components/shared/delete-confirm-button';
@@ -7,9 +7,9 @@ import { PageHeader } from '@/components/shared/page-header';
 import { SearchInput } from '@/components/shared/search-input';
 import { StatusFilterSelect } from '@/components/shared/status-filter-select';
 import { StaffFormDialog } from '@/components/staff/staff-form-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { useTableFilters } from '@/hooks/use-table-filters';
 import { formatTime } from '@/lib/format';
-import { destroy, index } from '@/routes/staff';
+import { destroy, index, toggle } from '@/routes/staff';
 import type { Paginated, Staff } from '@/types';
 
 type Props = {
@@ -141,17 +141,30 @@ export default function StaffIndex({ staff, filters }: Props) {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    member.is_active
-                                                        ? 'default'
-                                                        : 'secondary'
-                                                }
-                                            >
-                                                {member.is_active
-                                                    ? 'Active'
-                                                    : 'Inactive'}
-                                            </Badge>
+                                            <label className="flex cursor-pointer items-center gap-2">
+                                                <Switch
+                                                    className="transition-colors duration-300 data-checked:bg-emerald-500 [&_[data-slot=switch-thumb]]:!bg-white"
+                                                    checked={member.is_active}
+                                                    onCheckedChange={() =>
+                                                        router.patch(
+                                                            toggle(member.id)
+                                                                .url,
+                                                            {},
+                                                            {
+                                                                preserveScroll: true,
+                                                                preserveState: true,
+                                                                only: ['staff'],
+                                                            },
+                                                        )
+                                                    }
+                                                    aria-label={`Toggle ${member.name}`}
+                                                />
+                                                <span className="inline-block w-16 text-sm text-muted-foreground">
+                                                    {member.is_active
+                                                        ? 'Active'
+                                                        : 'Inactive'}
+                                                </span>
+                                            </label>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">

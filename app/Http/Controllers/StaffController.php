@@ -53,6 +53,13 @@ class StaffController extends Controller
         return back()->with('success', 'Staff member updated successfully.');
     }
 
+    public function toggle(Staff $staff): RedirectResponse
+    {
+        $staff->update(['is_active' => ! $staff->is_active]);
+
+        return back()->with('success', 'Staff status updated.');
+    }
+
     public function destroy(Staff $staff): RedirectResponse
     {
         $staff->delete();
