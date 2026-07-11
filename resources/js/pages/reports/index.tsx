@@ -8,6 +8,7 @@ import {
     UserX,
 } from 'lucide-react';
 import { AppBarChart, AppPieChart } from '@/components/shared/charts';
+import { DateRangePicker } from '@/components/shared/date-range-picker';
 import { PageHeader } from '@/components/shared/page-header';
 import { StatCard } from '@/components/shared/stat-card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -148,28 +148,18 @@ export default function ReportsIndex({
                         </Select>
                     </div>
                     {values.period === 'custom' && (
-                        <>
-                            <div className="grid gap-1.5">
-                                <Label>From</Label>
-                                <Input
-                                    type="date"
-                                    value={values.date_from}
-                                    onChange={(e) =>
-                                        setValue('date_from', e.target.value)
-                                    }
-                                />
-                            </div>
-                            <div className="grid gap-1.5">
-                                <Label>To</Label>
-                                <Input
-                                    type="date"
-                                    value={values.date_to}
-                                    onChange={(e) =>
-                                        setValue('date_to', e.target.value)
-                                    }
-                                />
-                            </div>
-                        </>
+                        <div className="grid gap-1.5">
+                            <Label>Date range</Label>
+                            <DateRangePicker
+                                from={values.date_from}
+                                to={values.date_to}
+                                onChange={({ from, to }) => {
+                                    setValue('date_from', from);
+                                    setValue('date_to', to);
+                                }}
+                                className="sm:w-72"
+                            />
+                        </div>
                     )}
                 </div>
 

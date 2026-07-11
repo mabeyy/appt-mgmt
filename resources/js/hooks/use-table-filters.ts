@@ -29,6 +29,10 @@ export function useTableFilters<T extends Record<string, string>>(
 ) {
     const [values, setValues] = useState<T>(initial);
     const first = useRef(true);
+    // Snapshot the defaults from the first render. `initial` is recomputed from
+    // the live `filters` prop each render, so it can't be used as the reset
+    // target — after filtering it already holds the applied values.
+    const defaults = useRef(initial);
 
     useEffect(() => {
         if (first.current) {
@@ -52,7 +56,7 @@ export function useTableFilters<T extends Record<string, string>>(
     const setValue = (key: keyof T, value: string) =>
         setValues((prev) => ({ ...prev, [key]: value }));
 
-    const reset = () => setValues(initial);
+    const reset = () => setValues(defaults.current);
 
     return { values, setValue, setValues, reset };
 }
