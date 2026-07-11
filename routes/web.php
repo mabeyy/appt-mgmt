@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Appointments
     Route::post('appointments/bulk-destroy', [AppointmentController::class, 'bulkDestroy'])->name('appointments.bulk-destroy');
     Route::post('appointments/bulk-status', [AppointmentController::class, 'bulkStatus'])->name('appointments.bulk-status');
+    Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
     Route::resource('appointments', AppointmentController::class);
 
     // Calendar

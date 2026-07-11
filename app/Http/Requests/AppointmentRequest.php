@@ -21,9 +21,8 @@ class AppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Pick an existing customer, or provide details to create one.
-            'customer_id' => ['nullable', 'exists:customers,id'],
-            'customer_name' => ['required_without:customer_id', 'nullable', 'string', 'max:255'],
+            // Customer details — resolved/created from these on save.
+            'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['nullable', 'email', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:50'],
 

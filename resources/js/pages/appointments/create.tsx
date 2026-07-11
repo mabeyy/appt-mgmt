@@ -4,19 +4,17 @@ import { AppointmentForm } from '@/components/appointments/appointment-form';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/appointments';
-import type { Customer, Service, StatusOption, Staff } from '@/types';
+import type { Service, StatusOption, Staff } from '@/types';
 
 type Props = {
     services: Pick<Service, 'id' | 'name' | 'duration' | 'price'>[];
     staff: Pick<Staff, 'id' | 'name'>[];
-    customers: Pick<Customer, 'id' | 'full_name' | 'email' | 'phone'>[];
     statuses: StatusOption[];
 };
 
 export default function AppointmentCreate({
     services,
     staff,
-    customers,
     statuses,
 }: Props) {
     return (
@@ -40,7 +38,6 @@ export default function AppointmentCreate({
                 <AppointmentForm
                     services={services}
                     staff={staff}
-                    customers={customers}
                     statuses={statuses}
                 />
             </div>

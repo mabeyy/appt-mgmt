@@ -1,8 +1,8 @@
 import { useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { CalendarClock, ClipboardList, User } from 'lucide-react';
 import { CustomerFields } from '@/components/appointments/customer-fields';
-import type { CustomerMode } from '@/components/appointments/customer-fields';
 import InputError from '@/components/input-error';
+import { DatePicker } from '@/components/shared/date-picker';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -25,7 +25,6 @@ import { store, update } from '@/routes/appointments';
 import type {
     Appointment,
     AppointmentStatusValue,
-    Customer,
     Service,
     StatusOption,
     Staff,
@@ -33,10 +32,8 @@ import type {
 
 type OptionService = Pick<Service, 'id' | 'name' | 'duration' | 'price'>;
 type OptionStaff = Pick<Staff, 'id' | 'name'>;
-type OptionCustomer = Pick<Customer, 'id' | 'full_name' | 'email' | 'phone'>;
 
 export type AppointmentFormData = {
-    customer_id: string;
     customer_name: string;
     customer_email: string;
     customer_phone: string;
@@ -53,29 +50,19 @@ export function AppointmentForm({
     appointment,
     services,
     staff,
-    customers,
     statuses,
 }: {
     appointment?: Appointment;
     services: OptionService[];
     staff: OptionStaff[];
-    customers: OptionCustomer[];
     statuses: StatusOption[];
 }) {
     const isEdit = Boolean(appointment);
-    const [customerMode, setCustomerMode] = useState<CustomerMode>(
-        !appointment?.customer_id && customers.length === 0
-            ? 'new'
-            : 'existing',
-    );
 
     const form = useForm<AppointmentFormData>({
-        customer_id: appointment?.customer_id
-            ? String(appointment.customer_id)
-            : '',
-        customer_name: '',
-        customer_email: '',
-        customer_phone: '',
+        customer_name: appointment?.customer?.full_name ?? '',
+        customer_email: appointment?.customer?.email ?? '',
+        customer_phone: appointment?.customer?.phone ?? '',
         service_id: appointment?.service_id
             ? String(appointment.service_id)
             : '',
@@ -103,11 +90,6 @@ export function AppointmentForm({
         e.preventDefault();
         form.transform((data) => ({
             ...data,
-            customer_id:
-                customerMode === 'existing' && data.customer_id
-                    ? Number(data.customer_id)
-                    : null,
-            customer_name: customerMode === 'new' ? data.customer_name : '',
             service_id: data.service_id ? Number(data.service_id) : null,
             staff_id: data.staff_id ? Number(data.staff_id) : null,
             duration: Number(data.duration),
@@ -125,24 +107,28 @@ export function AppointmentForm({
             <div className="space-y-6 lg:col-span-2">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Customer</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <User className="size-4 text-muted-foreground" />
+                            Customer
+                        </CardTitle>
                         <CardDescription>
-                            Choose an existing customer or add a new one.
+                            Enter the customer's contact details.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <CustomerFields
-                            form={form}
-                            customers={customers}
-                            mode={customerMode}
-                            onModeChange={setCustomerMode}
-                        />
+                        <CustomerFields form={form} />
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Schedule</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <CalendarClock className="size-4 text-muted-foreground" />
+                            Schedule
+                        </CardTitle>
+                        <CardDescription>
+                            Choose the service, date, and time.
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4 sm:grid-cols-2">
                         <div className="grid gap-2">
@@ -206,15 +192,15 @@ export function AppointmentForm({
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="appointment_date">Date</Label>
-                            <Input
+                            <DatePicker
                                 id="appointment_date"
-                                type="date"
                                 value={form.data.appointment_date}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'appointment_date',
-                                        e.target.value,
-                                    )
+                                onChange={(v) =>
+                                    form.setData('appointment_date', v)
+                                }
+                                disabled={(date) =>
+                                    date <
+                                    new Date(new Date().setHours(0, 0, 0, 0))
                                 }
                             />
                             <InputError
@@ -247,18 +233,27 @@ export function AppointmentForm({
                                     )
                                 }
                             />
+                            <p className="text-xs text-muted-foreground">
+                                Auto-filled from the service; adjust if needed.
+                            </p>
                             <InputError message={form.errors.duration} />
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="space-y-6">
-                <Card>
+            <div className="space-y-6 lg:h-full">
+                <Card className="lg:h-full">
                     <CardHeader>
-                        <CardTitle>Details</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <ClipboardList className="size-4 text-muted-foreground" />
+                            Details
+                        </CardTitle>
+                        <CardDescription>
+                            Set the status and any notes.
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="flex flex-1 flex-col gap-4">
                         <div className="grid gap-2">
                             <Label>Status</Label>
                             <Select
@@ -274,7 +269,19 @@ export function AppointmentForm({
                                 )}
                             >
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Status" />
+                                    <span className="flex items-center gap-2">
+                                        <span
+                                            className="size-2.5 shrink-0 rounded-full"
+                                            style={{
+                                                backgroundColor: statuses.find(
+                                                    (s) =>
+                                                        s.value ===
+                                                        form.data.status,
+                                                )?.color,
+                                            }}
+                                        />
+                                        <SelectValue placeholder="Status" />
+                                    </span>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {statuses.map((s) => (
@@ -282,14 +289,23 @@ export function AppointmentForm({
                                             key={s.value}
                                             value={s.value}
                                         >
-                                            {s.label}
+                                            <span className="flex items-center gap-2">
+                                                <span
+                                                    className="size-2.5 shrink-0 rounded-full"
+                                                    style={{
+                                                        backgroundColor:
+                                                            s.color,
+                                                    }}
+                                                />
+                                                {s.label}
+                                            </span>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                             <InputError message={form.errors.status} />
                         </div>
-                        <div className="grid gap-2">
+                        <div className="flex flex-1 flex-col gap-2">
                             <Label htmlFor="notes">Notes</Label>
                             <Textarea
                                 id="notes"
@@ -299,6 +315,7 @@ export function AppointmentForm({
                                 }
                                 rows={5}
                                 placeholder="Optional notes..."
+                                className="min-h-24 flex-1 resize-none"
                             />
                             <InputError message={form.errors.notes} />
                         </div>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\AppointmentStatus;
 use App\Http\Requests\AppointmentRequest;
 use App\Models\Appointment;
-use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Services\AppointmentService;
@@ -62,7 +61,6 @@ class AppointmentController extends Controller
         return Inertia::render('appointments/create', [
             'services' => Service::where('is_active', true)->orderBy('name')->get(['id', 'name', 'duration', 'price']),
             'staff' => Staff::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'customers' => Customer::orderBy('full_name')->get(['id', 'full_name', 'email', 'phone']),
             'statuses' => AppointmentStatus::options(),
         ]);
     }
@@ -76,11 +74,24 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment): Response
     {
-        $appointment->load(['customer', 'service', 'staff']);
+        $appointment->load(['customer', 'service.group', 'staff']);
 
         return Inertia::render('appointments/show', [
             'appointment' => $appointment,
         ]);
+    }
+
+    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', new Enum(AppointmentStatus::class)],
+        ]);
+
+        $appointment->update(['status' => $validated['status']]);
+
+        // No flash message here — the client fires a richer toast with an
+        // "Undo" action so a misclicked status can be reverted.
+        return back();
     }
 
     public function edit(Appointment $appointment): Response
@@ -91,7 +102,6 @@ class AppointmentController extends Controller
             'appointment' => $appointment,
             'services' => Service::orderBy('name')->get(['id', 'name', 'duration', 'price']),
             'staff' => Staff::orderBy('name')->get(['id', 'name']),
-            'customers' => Customer::orderBy('full_name')->get(['id', 'full_name', 'email', 'phone']),
             'statuses' => AppointmentStatus::options(),
         ]);
     }
