@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\TenantContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -18,7 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // One tenant per request/process, shared by the middleware that binds
+        // it and everything that reads it (models' scope, Setting, shared props).
+        $this->app->singleton(TenantContext::class);
     }
 
     /**
