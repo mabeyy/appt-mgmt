@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\AdminNotification;
 use App\Models\Setting;
+use App\Support\TenantContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,10 +44,16 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'business' => [
-                'name' => Setting::get('business_name', config('app.name')),
-                'logo' => Setting::get('business_logo'),
-            ],
+            'business' => function (): array {
+                $business = app(TenantContext::class)->current();
+
+                return [
+                    'name' => Setting::get('business_name', config('app.name')),
+                    'logo' => Setting::get('business_logo'),
+                    'type' => $business?->type->value,
+                    'terminology' => $business?->type->terminology(),
+                ];
+            },
             'notifications' => [
                 'unread' => $request->user() ? AdminNotification::unread()->count() : 0,
             ],

@@ -3,18 +3,25 @@
 namespace App\Models;
 
 use App\Enums\AppointmentStatus;
+use App\Models\Concerns\BelongsToBusiness;
+use Database\Factories\AppointmentFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 class Appointment extends Model
 {
+    /** @use HasFactory<AppointmentFactory> */
+    use BelongsToBusiness, HasFactory;
+
     protected $fillable = [
         'appointment_number',
         'customer_id',
         'service_id',
         'staff_id',
+        'resource_id',
         'appointment_date',
         'start_time',
         'duration',
@@ -35,7 +42,9 @@ class Appointment extends Model
     {
         static::creating(function (Appointment $appointment) {
             if (empty($appointment->appointment_number)) {
-                $next = (static::max('id') ?? 0) + 1;
+                // Global sequence (scope lifted) so numbers stay unique across
+                // every business, matching the global unique index.
+                $next = (static::withoutGlobalScopes()->max('id') ?? 0) + 1;
                 $appointment->appointment_number = 'APT-'.str_pad((string) $next, 5, '0', STR_PAD_LEFT);
             }
         });
@@ -57,6 +66,17 @@ class Appointment extends Model
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
+    }
+
+    /**
+     * The resource booked, for the courts / resource verticals (null for
+     * service appointments).
+     *
+     * @return BelongsTo<BookableResource, $this>
+     */
+    public function resource(): BelongsTo
+    {
+        return $this->belongsTo(BookableResource::class, 'resource_id');
     }
 
     /**

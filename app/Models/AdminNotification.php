@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBusiness;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class AdminNotification extends Model
 {
+    use BelongsToBusiness;
+
     protected $fillable = [
         'type',
         'title',
