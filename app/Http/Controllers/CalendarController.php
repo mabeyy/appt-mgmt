@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Staff;
+use App\Models\User;
 use App\Services\CalendarService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -27,6 +28,14 @@ class CalendarController extends Controller
     public function events(Request $request): JsonResponse
     {
         $filters = $request->only(['start', 'end', 'service_id', 'staff_id']);
+
+        // Staff only see their own calendar; force the filter to their provider.
+        $user = $request->user();
+        if ($user instanceof User && $user->isStaff()) {
+            // -1 (a non-existent id) rather than 0 so the calendar fails closed
+            // for a staff login not yet tied to a provider.
+            $filters['staff_id'] = $user->staffProfile()->value('id') ?? -1;
+        }
 
         return response()->json($this->calendar->events($filters));
     }

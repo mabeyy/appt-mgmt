@@ -7,6 +7,7 @@ use App\Http\Requests\AppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Staff;
+use App\Models\User;
 use App\Services\AppointmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,21 @@ class AppointmentController extends Controller
 {
     public function __construct(protected AppointmentService $appointments) {}
 
+    /**
+     * The provider id a staff user is limited to, or null for owners (who see
+     * everything). A staff login with no provider record sees nothing.
+     */
+    protected function staffProviderId(Request $request): ?int
+    {
+        $user = $request->user();
+
+        if ($user instanceof User && $user->isStaff()) {
+            return $user->staffProfile()->value('id') ?? 0;
+        }
+
+        return null;
+    }
+
     public function index(Request $request): Response
     {
         $sort = $request->string('sort', 'appointment_date')->toString();
@@ -27,8 +43,12 @@ class AppointmentController extends Controller
             $sort = 'appointment_date';
         }
 
+        // Staff only ever see their own appointments; owners see all.
+        $staffOnly = $this->staffProviderId($request);
+
         $appointments = Appointment::query()
             ->with(['customer:id,full_name,email,phone', 'service:id,name', 'staff:id,name'])
+            ->when($staffOnly !== null, fn ($q) => $q->where('staff_id', $staffOnly))
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->string('search')->toString();
                 $q->where(function ($q) use ($search) {
