@@ -15,6 +15,11 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+            // Platform (super-admin) console pages are self-contained and must
+            // not use the tenant AppLayout — its sidebar links point at
+            // business-scoped routes that bounce a platform admin back here.
+            case name.startsWith('platform/'):
+                return null;
             case name.startsWith('public/'):
                 return PublicLayout;
             case name.startsWith('auth/'):
