@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Actions\ResolveCustomer;
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
+use App\Models\AuditLog;
 use App\Models\Staff;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +35,11 @@ class AppointmentService
 
             $appointment = Appointment::create($this->attributes($data, $customer->id));
             $this->notifier->created($appointment);
+            AuditLog::record('booking.created', [
+                'entity_type' => 'appointment',
+                'entity_id' => $appointment->id,
+                'metadata' => ['number' => $appointment->appointment_number],
+            ]);
 
             return $appointment;
         });
