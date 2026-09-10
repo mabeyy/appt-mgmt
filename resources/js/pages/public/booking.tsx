@@ -26,6 +26,12 @@ import { slots as slotsRoute, store } from '@/routes/book';
 type Props = {
     serviceGroups: BookingGroup[];
     staff: BookingStaff[];
+    endpoints: {
+        slots: string;
+        store: string;
+        resourceSlots: string;
+        resourceStore: string;
+    };
 };
 
 const STEPS = ['Service', 'Staff', 'Date & time', 'Your details', 'Confirm'];
@@ -41,7 +47,7 @@ type BookingForm = {
     notes: string;
 };
 
-export default function Booking({ serviceGroups, staff }: Props) {
+export default function Booking({ serviceGroups, staff, endpoints }: Props) {
     const form = useForm<BookingForm>({
         service_id: '',
         staff_id: '',
@@ -81,7 +87,7 @@ export default function Booking({ serviceGroups, staff }: Props) {
             params.set('staff_id', staffId);
         }
 
-        fetch(`${slotsRoute().url}?${params.toString()}`, {
+        fetch(`${endpoints?.slots ?? slotsRoute().url}?${params.toString()}`, {
             headers: { Accept: 'application/json' },
         })
             .then((r) => r.json())
@@ -139,7 +145,7 @@ export default function Booking({ serviceGroups, staff }: Props) {
     ][step];
 
     const submit = () => {
-        form.post(store().url, {
+        form.post(endpoints?.store ?? store().url, {
             onError: (e) => {
                 if (e.service_id) {
                     setStep(0);
