@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
+use App\Models\ClosedDate;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Models\Staff;
@@ -81,9 +82,11 @@ class AvailabilityService
             return ['appointment_date' => 'The appointment date cannot be in the past.'];
         }
 
-        // 2. Business is open that weekday.
+        // 2. Business is open that weekday, and the date isn't a holiday/closure.
         if (! in_array($weekday, $settings['working_days'] ?? [], true)) {
             $errors['appointment_date'] = 'The business is closed on '.$start->format('l').'.';
+        } elseif (ClosedDate::isClosed($date)) {
+            $errors['appointment_date'] = 'The business is closed on this date.';
         }
 
         // 3. Within business hours (start and start+duration).
@@ -149,6 +152,9 @@ class AvailabilityService
             return [];
         }
         if ($carbonDate->copy()->startOfDay()->lt(Carbon::today($tz))) {
+            return [];
+        }
+        if (ClosedDate::isClosed($date)) {
             return [];
         }
 

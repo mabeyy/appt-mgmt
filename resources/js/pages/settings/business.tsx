@@ -1,4 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { CheckboxField } from '@/components/shared/checkbox-field';
@@ -14,7 +15,23 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { edit, update } from '@/routes/business';
+import { destroy as destroyClosedDate, store as storeClosedDate } from '@/routes/closed-dates';
 import type { BusinessSettings } from '@/types';
+
+type BusinessSettingsProps = BusinessSettings & {
+    business_website?: string | null;
+    business_city?: string | null;
+    business_country?: string | null;
+    currency?: string | null;
+};
+
+type ClosedDate = {
+    id: number;
+    date: string;
+    reason: string | null;
+};
+
+const CURRENCIES = ['PHP', 'USD', 'EUR', 'GBP', 'AUD', 'SGD'];
 
 const TIMEZONES = [
     'UTC',
@@ -32,18 +49,26 @@ const TIMEZONES = [
 
 export default function BusinessSettings({
     settings,
+    closedDates,
 }: {
-    settings: BusinessSettings;
+    settings: BusinessSettingsProps;
+    closedDates: ClosedDate[];
 }) {
     const timezones = TIMEZONES.includes(settings.timezone)
         ? TIMEZONES
         : [settings.timezone, ...TIMEZONES];
+
+    const today = new Date().toISOString().slice(0, 10);
 
     const form = useForm({
         business_name: settings.business_name ?? '',
         business_email: settings.business_email ?? '',
         business_phone: settings.business_phone ?? '',
         business_address: settings.business_address ?? '',
+        business_website: settings.business_website ?? '',
+        business_city: settings.business_city ?? '',
+        business_country: settings.business_country ?? '',
+        currency: settings.currency ?? 'PHP',
         timezone: settings.timezone ?? 'UTC',
         business_hours_start: settings.business_hours_start ?? '09:00',
         business_hours_end: settings.business_hours_end ?? '18:00',
@@ -59,6 +84,30 @@ export default function BusinessSettings({
         e.preventDefault();
         form.post(update().url, { forceFormData: true, preserveScroll: true });
     };
+
+    const closedDateForm = useForm({
+        date: '',
+        reason: '',
+    });
+
+    const submitClosedDate = (e: React.FormEvent) => {
+        e.preventDefault();
+        closedDateForm.post(storeClosedDate().url, {
+            preserveScroll: true,
+            onSuccess: () => closedDateForm.reset(),
+        });
+    };
+
+    const removeClosedDate = (id: number) => {
+        router.delete(destroyClosedDate(id).url, { preserveScroll: true });
+    };
+
+    const formatClosedDate = (date: string) =>
+        new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
 
     return (
         <>
@@ -132,6 +181,78 @@ export default function BusinessSettings({
                             <InputError
                                 message={form.errors.business_address}
                             />
+                        </div>
+                        <div className="grid gap-2 sm:col-span-2">
+                            <Label htmlFor="business_website">Website</Label>
+                            <Input
+                                id="business_website"
+                                type="url"
+                                placeholder="https://example.com"
+                                value={form.data.business_website}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_website',
+                                        e.target.value,
+                                    )
+                                }
+                            />
+                            <InputError
+                                message={form.errors.business_website}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="business_city">City</Label>
+                            <Input
+                                id="business_city"
+                                value={form.data.business_city}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_city',
+                                        e.target.value,
+                                    )
+                                }
+                            />
+                            <InputError message={form.errors.business_city} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="business_country">Country</Label>
+                            <Input
+                                id="business_country"
+                                value={form.data.business_country}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'business_country',
+                                        e.target.value,
+                                    )
+                                }
+                            />
+                            <InputError
+                                message={form.errors.business_country}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="currency">Currency</Label>
+                            <Select
+                                value={form.data.currency}
+                                onValueChange={(v) =>
+                                    form.setData('currency', String(v))
+                                }
+                                items={Object.fromEntries(
+                                    CURRENCIES.map((c) => [c, c]),
+                                )}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {CURRENCIES.map((c) => (
+                                        <SelectItem key={c} value={c}>
+                                            {c}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <InputError message={form.errors.currency} />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="timezone">Time zone</Label>
@@ -316,6 +437,92 @@ export default function BusinessSettings({
                     )}
                 </div>
             </form>
+
+            {/* Closed dates */}
+            <div className="mt-8 space-y-6">
+                <Heading
+                    variant="small"
+                    title="Closed dates"
+                    description="Holidays and special closures when bookings are unavailable"
+                />
+
+                <form
+                    onSubmit={submitClosedDate}
+                    className="flex flex-col gap-3 sm:flex-row sm:items-end"
+                >
+                    <div className="grid gap-2">
+                        <Label htmlFor="closed_date">Date</Label>
+                        <Input
+                            id="closed_date"
+                            type="date"
+                            min={today}
+                            value={closedDateForm.data.date}
+                            onChange={(e) =>
+                                closedDateForm.setData('date', e.target.value)
+                            }
+                        />
+                        <InputError message={closedDateForm.errors.date} />
+                    </div>
+                    <div className="grid flex-1 gap-2">
+                        <Label htmlFor="closed_reason">Reason (optional)</Label>
+                        <Input
+                            id="closed_reason"
+                            placeholder="e.g. Public holiday"
+                            value={closedDateForm.data.reason}
+                            onChange={(e) =>
+                                closedDateForm.setData('reason', e.target.value)
+                            }
+                        />
+                        <InputError message={closedDateForm.errors.reason} />
+                    </div>
+                    <Button
+                        type="submit"
+                        variant="secondary"
+                        disabled={
+                            closedDateForm.processing || !closedDateForm.data.date
+                        }
+                    >
+                        Add
+                    </Button>
+                </form>
+
+                {closedDates.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                        No closed dates.
+                    </p>
+                ) : (
+                    <ul className="divide-y rounded-md border">
+                        {closedDates.map((closedDate) => (
+                            <li
+                                key={closedDate.id}
+                                className="flex items-center justify-between gap-3 px-4 py-3"
+                            >
+                                <div className="min-w-0">
+                                    <p className="text-sm font-medium">
+                                        {formatClosedDate(closedDate.date)}
+                                    </p>
+                                    {closedDate.reason && (
+                                        <p className="truncate text-sm text-muted-foreground">
+                                            {closedDate.reason}
+                                        </p>
+                                    )}
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() =>
+                                        removeClosedDate(closedDate.id)
+                                    }
+                                    aria-label="Remove closed date"
+                                >
+                                    <Trash2 className="size-4" />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </>
     );
 }

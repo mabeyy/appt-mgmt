@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClosedDate;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,15 @@ class BusinessSettingsController extends Controller
     {
         return Inertia::render('settings/business', [
             'settings' => Setting::values(),
+            'closedDates' => ClosedDate::query()
+                ->whereDate('date', '>=', today())
+                ->orderBy('date')
+                ->get(['id', 'date', 'reason'])
+                ->map(fn (ClosedDate $d): array => [
+                    'id' => $d->id,
+                    'date' => $d->date->toDateString(),
+                    'reason' => $d->reason,
+                ]),
         ]);
     }
 
@@ -26,6 +36,10 @@ class BusinessSettingsController extends Controller
             'business_email' => ['nullable', 'email', 'max:255'],
             'business_phone' => ['nullable', 'string', 'max:50'],
             'business_address' => ['nullable', 'string', 'max:1000'],
+            'business_website' => ['nullable', 'url', 'max:255'],
+            'business_city' => ['nullable', 'string', 'max:120'],
+            'business_country' => ['nullable', 'string', 'max:120'],
+            'currency' => ['required', 'string', 'size:3'],
             'timezone' => ['required', 'string', 'timezone'],
             'business_hours_start' => ['required', 'date_format:H:i'],
             'business_hours_end' => ['required', 'date_format:H:i', 'after:business_hours_start'],
