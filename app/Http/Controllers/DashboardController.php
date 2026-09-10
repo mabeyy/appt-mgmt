@@ -13,9 +13,12 @@ class DashboardController extends Controller
         return Inertia::render('dashboard', [
             // Immediate: summary cards + status distribution.
             ...$dashboard->headline(),
+            // The most-booked widget adapts to the business type (services vs
+            // resources); the label comes with it.
+            'mostBookedLabel' => $dashboard->mostBookedLabel(),
             // Deferred: heavier datasets stream in after first paint (skeletons shown).
             'monthlyTrends' => Inertia::defer(fn () => $dashboard->monthlyTrends()),
-            'mostBookedServices' => Inertia::defer(fn () => $dashboard->mostBookedServices()),
+            'mostBooked' => Inertia::defer(fn () => $dashboard->mostBooked()),
             'todaySchedule' => Inertia::defer(fn () => $dashboard->todaySchedule(), 'widgets'),
             'upcomingAppointments' => Inertia::defer(fn () => $dashboard->upcomingAppointments(), 'widgets'),
             'recentBookings' => Inertia::defer(fn () => $dashboard->recentBookings(), 'widgets'),

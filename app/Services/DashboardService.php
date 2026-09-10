@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Concerns\AggregatesAppointmentStatuses;
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
+use App\Models\BookableResource;
+use App\Support\TenantContext;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
@@ -35,6 +37,46 @@ class DashboardService
             ],
             'statusDistribution' => $this->statusDistribution($statusCounts),
         ];
+    }
+
+    /**
+     * The most-booked thing for this business type — resources for court/
+     * resource venues, services for salon/barbershop.
+     *
+     * @return array<int, array{name: string, count: int}>
+     */
+    public function mostBooked(): array
+    {
+        if (app(TenantContext::class)->current()?->usesResources()) {
+            return BookableResource::query()
+                ->withCount('appointments')
+                ->orderByDesc('appointments_count')
+                ->limit(5)
+                ->get()
+                ->filter(fn (BookableResource $r): bool => $r->appointments_count > 0)
+                ->map(fn (BookableResource $r): array => [
+                    'name' => $r->name,
+                    'count' => (int) $r->appointments_count,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $this->mostBookedServices();
+    }
+
+    /**
+     * The heading for the most-booked widget, per business type.
+     */
+    public function mostBookedLabel(): string
+    {
+        $business = app(TenantContext::class)->current();
+
+        if ($business?->usesResources()) {
+            return 'Most booked '.strtolower($business->type->resourceNoun()).'s';
+        }
+
+        return 'Most booked services';
     }
 
     /**

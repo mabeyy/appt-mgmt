@@ -58,7 +58,8 @@ type Props = {
     statusDistribution: Array<{ status: string; value: number; color: string }>;
     // Deferred — undefined until streamed in after first paint.
     monthlyTrends?: Array<{ month: string; count: number }>;
-    mostBookedServices?: Array<{ name: string; count: number }>;
+    mostBooked?: Array<{ name: string; count: number }>;
+    mostBookedLabel: string;
     todaySchedule?: AppointmentWidgetItem[];
     upcomingAppointments?: AppointmentWidgetItem[];
     recentBookings?: AppointmentWidgetItem[];
@@ -186,7 +187,8 @@ export default function Dashboard({
     summary,
     monthlyTrends,
     statusDistribution,
-    mostBookedServices,
+    mostBooked,
+    mostBookedLabel,
     todaySchedule,
     upcomingAppointments,
     recentBookings,
@@ -263,18 +265,18 @@ export default function Dashboard({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Most Booked Services</CardTitle>
+                        <CardTitle>{mostBookedLabel}</CardTitle>
                         <CardDescription>
                             Top services by number of appointments
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Deferred
-                            data="mostBookedServices"
+                            data="mostBooked"
                             fallback={<ChartSkeleton height={260} />}
                         >
                             <AppBarChart
-                                data={mostBookedServices ?? []}
+                                data={mostBooked ?? []}
                                 xKey="name"
                                 yKey="count"
                                 height={260}
