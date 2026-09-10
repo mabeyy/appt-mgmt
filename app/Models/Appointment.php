@@ -26,6 +26,7 @@ class Appointment extends Model
         'start_time',
         'duration',
         'status',
+        'reminder_sent_at',
         'notes',
     ];
 
@@ -35,6 +36,7 @@ class Appointment extends Model
             'appointment_date' => 'date',
             'duration' => 'integer',
             'status' => AppointmentStatus::class,
+            'reminder_sent_at' => 'datetime',
         ];
     }
 
